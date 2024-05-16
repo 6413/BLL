@@ -1095,7 +1095,7 @@ _BLL_POFTWBIT(Open)
     #endif
   #endif
 
-  #if BLL_set_UseUninitialisedValues == 0
+  #if __sanit
     _BLL_GetList->e.c.NRI = 0;
   #endif
 

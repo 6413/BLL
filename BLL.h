@@ -10,7 +10,7 @@
   #error outdated setting.
 #endif
 #ifdef BLL_set_node_data
-  #error outdated setting. use BLL_set_NodeData
+  #error outdated setting BLL_set_node_data. use BLL_set_NodeData
 #endif
 #ifdef BLL_set_IsNodeUnlinked
   #error outdated setting. now there is only BLL_set_IsNodeRecycled
@@ -46,6 +46,9 @@
     #error ?
   #endif
   */
+#endif
+#ifdef BLL_set_UseUninitialisedValues
+  #error outdated setting BLL_set_UseUninitialisedValues. __sanit used instead.
 #endif
 
 /* --- outdated --- */
@@ -100,15 +103,6 @@
 #endif
 #ifndef BLL_set_ResizeListAfterClear
   #define BLL_set_ResizeListAfterClear 0
-#endif
-#ifndef BLL_set_UseUninitialisedValues
-  #if defined(WITCH_set_UseUninitialisedValues)
-    #define BLL_set_UseUninitialisedValues WITCH_set_UseUninitialisedValues
-  #elif defined(fan_use_uninitialized)
-    #define BLL_set_UseUninitialisedValues fan_use_uninitialized
-  #else
-    #error BLL_set_UseUninitialisedValues needs to be set.
-  #endif
 #endif
 #ifndef BLL_set_Link
   #define BLL_set_Link 1
@@ -231,7 +225,6 @@
 #undef BLL_set_type_node
 #undef BLL_set_StoreFormat
 #undef BLL_set_Link
-#undef BLL_set_UseUninitialisedValues
 #undef BLL_set_ResizeListAfterClear
 #undef BLL_set_SafeNext
 #undef BLL_set_IsNodeRecycled
