@@ -51,6 +51,9 @@
 #ifdef BLL_set_UseUninitialisedValues
   #error outdated setting BLL_set_UseUninitialisedValues. __sanit used instead.
 #endif
+#ifdef BLL_set_namespace
+  #error outdated setting BLL_set_namespace. just put include bll inside namespace.
+#endif
 
 /* --- outdated --- */
 
@@ -239,7 +242,4 @@
 #undef BLL_set_Language
 #undef BLL_set_AreWeInsideStruct
 #undef BLL_set_prefix
-#ifdef BLL_set_namespace
-  #undef BLL_set_namespace
-#endif
 #undef BLL_set_Mark

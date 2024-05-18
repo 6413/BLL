@@ -1,7 +1,3 @@
-#ifdef BLL_set_namespace
-  namespace BLL_set_namespace {
-#endif
-
 /* too much overenginer here */
 #if BLL_set_StoreFormat == 1
   /* TODO can be more smaller */
@@ -1345,9 +1341,4 @@ _BLL_POFTWBIT(Clear) /* TODO those 2 numbers in this function needs to be flexib
       return list->gln(*nr)->PrevNodeReference;
     }
   #endif
-#endif
-
-
-#ifdef BLL_set_namespace
-  }
 #endif

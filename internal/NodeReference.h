@@ -1,7 +1,3 @@
-#ifdef BLL_set_namespace
-  namespace BLL_set_namespace {
-#endif
-
 #if BLL_set_Language == 1
   struct _P(t);
   struct _P(NodeReference_t);
@@ -90,7 +86,3 @@ _P(inric)
   _P(NodeReference_t) nric = _P(gnric)();
   return nric.NRI == NodeReference.NRI;
 }
-
-#ifdef BLL_set_namespace
-  }
-#endif
