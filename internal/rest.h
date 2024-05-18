@@ -305,29 +305,6 @@ _BLL_POFTWBIT(_GetNRTHOfNR)
   return &((_P(NodeReference_t) *)n)[TH];
 }
 
-/* get recycle node reference of node reference */
-_BLL_SOFTWBIT
-_P(NodeReference_t) *
-_BLL_POFTWBIT(_grecnrofnr)
-(
-  _BLL_DBLLTFFC
-  _P(NodeReference_t) NodeReference
-){
-  return _BLL_POFTWBIT(_GetNRTHOfNR)(_BLL_PBLLTFFC NodeReference, 0);
-}
-
-#if BLL_set_IsNodeRecycled == 1
-  _BLL_SOFTWBIT
-  bool
-  _BLL_POFTWBIT(IsNodeReferenceRecycled)
-  (
-    _BLL_DBLLTFFC
-    _P(NodeReference_t) NodeReference
-  ){
-    return _BLL_POFTWBIT(_GetNRTHOfNR)(_BLL_PBLLTFFC NodeReference, 1)->NRI == (BLL_set_type_node)-1;
-  }
-#endif
-
 _BLL_SOFTWBIT
 _P(Node_t) *
 _BLL_POFTWBIT(GetNodeByReference)
@@ -363,6 +340,46 @@ _BLL_POFTWBIT(GetNodeByReference)
     }while(0);
   #endif
   return Node;
+}
+
+_BLL_SOFTWBIT
+_P(NodeData_t) *
+_BLL_POFTWBIT(GetNodeReferenceData)
+(
+  _BLL_DBLLTFFC
+  _P(NodeReference_t) NodeReference
+  #if defined(BLL_set_MultipleType_Sizes)
+    , uintptr_t PointerIndex
+  #endif
+){
+  _P(Node_t) *Node = _BLL_POFTWBIT(GetNodeByReference)(
+    _BLL_PBLLTFFC
+    NodeReference
+    #if defined(BLL_set_MultipleType_Sizes)
+      , PointerIndex
+    #endif
+  );
+  #if defined(BLL_set_MultipleType_Sizes)
+    #if BLL_set_Link == 1
+      if(PointerIndex == BLL_set_MultipleType_LinkIndex){
+        return (_P(NodeData_t) *)((uint8_t *)Node + sizeof(_P(Node_t)));
+      }
+      else{
+        return (_P(NodeData_t) *)Node;
+      }
+    #else
+      return (_P(NodeData_t) *)Node;
+    #endif
+  #elif defined(_BLL_HaveConstantNodeData)
+    return (_P(NodeData_t) *)&Node->data;
+  #else
+    return (_P(NodeData_t) *)(
+      (uint8_t *)Node
+      #if BLL_set_Link == 1
+        + sizeof(_P(Node_t))
+      #endif
+    );
+  #endif
 }
 
 _BLL_SOFTWBIT
@@ -407,17 +424,10 @@ _BLL_POFTWBIT(_Node_Construct)
   _P(NodeReference_t) NodeReference
 ){
   #ifdef BLL_set_CPP_Node_ConstructDestruct
-  /* TODO _ with getnode... or what? */
-        /* + help is it even correct?*/
     #if defined(BLL_set_MultipleType_LinkIndex)
-      /*_P(Node_t) *n = _BLL_POFTWBIT(_GetNodeByReference)(_BLL_PBLLTFFC NodeReference, 0);
-      new (n) _P(NodeData_t);
-      n = _BLL_POFTWBIT(_GetNodeByReference)(_BLL_PBLLTFFC NodeReference, 1);
-      new (n) _P(NodeData_t);*/
-      /* - help*/
+      #error implement this
     #else
-      _P(Node_t)* n = _BLL_POFTWBIT(_GetNodeByReference)(_BLL_PBLLTFFC NodeReference);
-      new (&n->data) _P(NodeData_t);
+      new (_BLL_POFTWBIT(GetNodeReferenceData)(_BLL_PBLLTFFC NodeReference)) _P(NodeData_t);
     #endif
   #endif
 }
@@ -429,21 +439,36 @@ _BLL_POFTWBIT(_Node_Destruct)
   _P(NodeReference_t) NodeReference
 ){
   #ifdef BLL_set_CPP_Node_ConstructDestruct
-    /* TODO _ with getnode... or what? */
     #if defined(BLL_set_MultipleType_LinkIndex)
-      /* + help is it even correct?*/
-      _P(Node_t)* n = _BLL_POFTWBIT(GetNodeByReference)(_BLL_PBLLTFFC NodeReference, 0);
-      ((_P(NodeData_t)*)n)->~_P(NodeData_t)();
-      n = _BLL_POFTWBIT(GetNodeByReference)(_BLL_PBLLTFFC NodeReference, 1);
-      ((_P(NodeData_t)*)n)->~_P(NodeData_t)();
-      /* - help*/
+      #error implement this
     #else
-      _P(Node_t)* n = _BLL_POFTWBIT(GetNodeByReference)(_BLL_PBLLTFFC NodeReference);
-      ((_P(NodeData_t)*) & n->data)->~_P(NodeData_t)();
+      _BLL_POFTWBIT(GetNodeReferenceData)(_BLL_PBLLTFFC NodeReference)->~_P(NodeData_t)();
     #endif
-
   #endif
 }
+
+/* get recycle node reference of node reference */
+_BLL_SOFTWBIT
+_P(NodeReference_t) *
+_BLL_POFTWBIT(_grecnrofnr)
+(
+  _BLL_DBLLTFFC
+  _P(NodeReference_t) NodeReference
+){
+  return _BLL_POFTWBIT(_GetNRTHOfNR)(_BLL_PBLLTFFC NodeReference, 0);
+}
+
+#if BLL_set_IsNodeRecycled == 1
+  _BLL_SOFTWBIT
+  bool
+  _BLL_POFTWBIT(IsNodeReferenceRecycled)
+  (
+    _BLL_DBLLTFFC
+    _P(NodeReference_t) NodeReference
+  ){
+    return _BLL_POFTWBIT(_GetNRTHOfNR)(_BLL_PBLLTFFC NodeReference, 1)->NRI == (BLL_set_type_node)-1;
+  }
+#endif
 
 _BLL_SOFTWBIT
 void
@@ -473,17 +498,15 @@ _BLL_POFTWBIT(Recycle)
   _BLL_POFTWBIT(_Recycle)(_BLL_PBLLTFFC NodeReference);
 }
 
-#ifdef BLL_set_CPP_Node_ConstructDestruct
-  _BLL_SOFTWBIT
-  void
-  _BLL_POFTWBIT(Recycle_NoDestruct)
-  (
-    _BLL_DBLLTFFC
-    _P(NodeReference_t) NodeReference
-  ){
-    _BLL_POFTWBIT(_Recycle)(_BLL_PBLLTFFC NodeReference);
-  }
-#endif
+_BLL_SOFTWBIT
+void
+_BLL_POFTWBIT(Recycle_NoDestruct)
+(
+  _BLL_DBLLTFFC
+  _P(NodeReference_t) NodeReference
+){
+  _BLL_POFTWBIT(_Recycle)(_BLL_PBLLTFFC NodeReference);
+}
 
 _BLL_SOFTWBIT
 _P(NodeReference_t)
@@ -1276,46 +1299,6 @@ _BLL_POFTWBIT(Clear) /* TODO those 2 numbers in this function needs to be flexib
     #endif
   }
 #endif
-
-_BLL_SOFTWBIT
-_P(NodeData_t) *
-_BLL_POFTWBIT(GetNodeReferenceData)
-(
-  _BLL_DBLLTFFC
-  _P(NodeReference_t) NodeReference
-  #if defined(BLL_set_MultipleType_Sizes)
-    , uintptr_t PointerIndex
-  #endif
-){
-  _P(Node_t) *Node = _BLL_POFTWBIT(GetNodeByReference)(
-    _BLL_PBLLTFFC
-    NodeReference
-    #if defined(BLL_set_MultipleType_Sizes)
-      , PointerIndex
-    #endif
-  );
-  #if defined(BLL_set_MultipleType_Sizes)
-    #if BLL_set_Link == 1
-      if(PointerIndex == BLL_set_MultipleType_LinkIndex){
-        return (_P(NodeData_t) *)((uint8_t *)Node + sizeof(_P(Node_t)));
-      }
-      else{
-        return (_P(NodeData_t) *)Node;
-      }
-    #else
-      return (_P(NodeData_t) *)Node;
-    #endif
-  #elif defined(_BLL_HaveConstantNodeData)
-    return (_P(NodeData_t) *)&Node->data;
-  #else
-    return (_P(NodeData_t) *)(
-      (uint8_t *)Node
-      #if BLL_set_Link == 1
-        + sizeof(_P(Node_t))
-      #endif
-    );
-  #endif
-}
 
 #if BLL_set_Language == 1
   #if defined(BLL_set_MultipleType_Sizes)
