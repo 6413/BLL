@@ -25,7 +25,8 @@
   #error outdated setting. now it's BLL_set_alloc_close
 #endif
 #ifdef BLL_set_BaseLibrary
-  #error BLL_set_BaseLibrary is no longer supported. look at down line of this error to see the baselibrary config.
+  #error BLL_set_BaseLibrary is no longer supported.
+  #error look at down line of this error to see the baselibrary config.
   /*
   #if BLL_set_BaseLibrary == 0
     #define BLL_set_Language 0
@@ -58,16 +59,16 @@
   #define BLL_set_Mark 0
 #endif
 
-#ifndef BLL_set_Language
-  #error BLL_set_Language needs to be set. 0 is C and 1 is C++
-#endif
-
-#ifndef BLL_set_CPP_nrsic
-  #define BLL_set_CPP_nrsic 0
-#endif
-
 #ifndef BLL_set_AreWeInsideStruct
   #define BLL_set_AreWeInsideStruct 0
+#endif
+
+#ifndef BLL_set_Language
+  #if BLL_set_AreWeInsideStruct
+    #define BLL_set_Language 1
+  #else
+    #error BLL_set_Language needs to be set. 0 is C and 1 is C++
+  #endif
 #endif
 
 #ifndef BLL_set_prefix
@@ -115,6 +116,10 @@
 #endif
 #ifndef BLL_set_NodeSizeType
   #define BLL_set_NodeSizeType uint32_t
+#endif
+
+#ifndef BLL_set_CPP_nrsic
+  #define BLL_set_CPP_nrsic 0
 #endif
 
 #ifndef BLL_set_IsNodeRecycled
@@ -185,9 +190,6 @@
   #undef BLL_set_StoreFormat1_ElementPerBlock
 #endif
 
-#ifdef BLL_set_CPP_nrsic
-  #undef BLL_set_CPP_nrsic
-#endif
 #ifdef BLL_set_CPP_CopyAtPointerChange
   #undef BLL_set_CPP_CopyAtPointerChange
 #endif
@@ -221,6 +223,7 @@
 #ifdef BLL_set_NoSentinel
   #undef BLL_set_NoSentinel
 #endif
+#undef BLL_set_CPP_nrsic
 #undef BLL_set_NodeSizeType
 #undef BLL_set_type_node
 #undef BLL_set_StoreFormat
@@ -233,10 +236,10 @@
 #undef BLL_set_declare_rest
 #undef BLL_set_declare_NodeReference
 #undef BLL_set_StructFormat
+#undef BLL_set_Language
 #undef BLL_set_AreWeInsideStruct
 #undef BLL_set_prefix
 #ifdef BLL_set_namespace
   #undef BLL_set_namespace
 #endif
-#undef BLL_set_Language
 #undef BLL_set_Mark
