@@ -173,14 +173,16 @@ BLL_StructBegin(_P(t))
   #ifndef _BLL_HaveConstantNodeData
     uint32_t NodeSize;
   #endif
-  #if BLL_set_Link == 1 && !defined(BLL_set_NoSentinel)
+  #if BLL_set_LinkSentinel
     _P(NodeReference_t) src;
     _P(NodeReference_t) dst;
   #endif
-  struct{
-    _P(NodeReference_t) c;
-    BLL_set_type_node p;
-  }e;
+  #if BLL_set_Recycle
+    struct{
+      _P(NodeReference_t) c;
+      BLL_set_type_node p;
+    }e;
+  #endif
   #if BLL_set_SafeNext == 1
     _P(NodeReference_t) SafeNext;
   #elif BLL_set_SafeNext > 1
@@ -267,27 +269,7 @@ _BLL_fdec(_P(NodeReference_t) *, _GetNRTHOfNR,
 _BLL_fdecpi(_P(Node_t) *, GetNodeByReference,
   _P(NodeReference_t) nr
 ){
-  #if BLL_set_debug_InvalidAction == 1
-    if(nr.NRI >= _BLL_this->NodeList.Current){
-      __abort();
-    }
-  #endif
-  _P(Node_t) *Node = _BLL_fcallpi(_GetNodeByReference, nr);
-  #if BLL_set_debug_InvalidAction == 1
-    do{
-      #if BLL_set_debug_InvalidAction_srcAccess == 1
-        if(nr.NRI == _BLL_this->src.NRI){
-          __abort();
-        }
-      #endif
-      #if BLL_set_debug_InvalidAction_dstAccess == 1
-        if(nr.NRI == _BLL_this->dst.NRI){
-          __abort();
-        }
-      #endif
-    }while(0);
-  #endif
-  return Node;
+  return _BLL_fcallpi(_GetNodeByReference, nr);
 }
 
 _BLL_fdecpi(_P(NodeData_t) *, GetNodeReferenceData,
@@ -319,19 +301,19 @@ _BLL_fdecpi(_P(NodeData_t) *, GetNodeReferenceData,
 
 _BLL_fdec(BLL_set_type_node, Usage
 ){
+  return
   #if BLL_set_StoreFormat == 0
-    #if BLL_set_Link == 0
-      return _BLL_this->NodeList.Current - _BLL_this->e.p;
-    #elif BLL_set_Link == 1
-      return _BLL_this->NodeList.Current - _BLL_this->e.p - 2;
-    #endif
+    _BLL_this->NodeList.Current
   #elif BLL_set_StoreFormat == 1
-    #if BLL_set_Link == 0
-      return _BLL_this->NodeCurrent - _BLL_this->e.p;
-    #elif BLL_set_Link == 1
-      return _BLL_this->NodeCurrent - _BLL_this->e.p - 2;
-    #endif
+    _BLL_this->NodeCurrent
   #endif
+  #if BLL_set_Recycle
+    - _BLL_this->e.p
+  #endif
+  #if BLL_set_LinkSentinel
+    - 2
+  #endif
+  ;
 }
 
 #if BLL_set_StoreFormat == 1
@@ -367,46 +349,48 @@ _BLL_fdec(void, _Node_Destruct,
   #endif
 }
 
-/* get recycle node reference of node reference */
-_BLL_fdec(_P(NodeReference_t) *, _grecnrofnr,
-  _P(NodeReference_t) nr
-){
-  return _BLL_fcall(_GetNRTHOfNR, nr, 0);
-}
-
-#if BLL_set_IsNodeRecycled == 1
-  _BLL_fdec(bool, IsNodeReferenceRecycled,
+#if BLL_set_Recycle
+  /* get recycle node reference of node reference */
+  _BLL_fdec(_P(NodeReference_t) *, _grecnrofnr,
     _P(NodeReference_t) nr
   ){
-    return _BLL_fcall(_GetNRTHOfNR, nr, 1)->NRI == (BLL_set_type_node)-1;
+    return _BLL_fcall(_GetNRTHOfNR, nr, 0);
+  }
+
+  #if BLL_set_IsNodeRecycled == 1
+    _BLL_fdec(bool, IsNodeReferenceRecycled,
+      _P(NodeReference_t) nr
+    ){
+      return _BLL_fcall(_GetNRTHOfNR, nr, 1)->NRI == (BLL_set_type_node)-1;
+    }
+  #endif
+
+  _BLL_fdec(void, _Recycle,
+    _P(NodeReference_t) nr
+  ){
+    _P(NodeReference_t) *NextRecycled = _BLL_fcall(_grecnrofnr, nr);
+
+    *NextRecycled = _BLL_this->e.c;
+    #if BLL_set_IsNodeRecycled == 1
+      _BLL_fcall(_GetNRTHOfNR, nr, 1)->NRI = (BLL_set_type_node)-1;
+    #endif
+    _BLL_this->e.c = nr;
+    _BLL_this->e.p++;
+  }
+
+  _BLL_fdec(void, Recycle,
+    _P(NodeReference_t) nr
+  ){
+    _BLL_fcall(_Node_Destruct, nr);
+    _BLL_fcall(_Recycle, nr);
+  }
+
+  _BLL_fdec(void, Recycle_NoDestruct,
+    _P(NodeReference_t) nr
+  ){
+    _BLL_fcall(_Recycle, nr);
   }
 #endif
-
-_BLL_fdec(void, _Recycle,
-  _P(NodeReference_t) nr
-){
-  _P(NodeReference_t) *NextRecycled = _BLL_fcall(_grecnrofnr, nr);
-
-  *NextRecycled = _BLL_this->e.c;
-  #if BLL_set_IsNodeRecycled == 1
-    _BLL_fcall(_GetNRTHOfNR, nr, 1)->NRI = (BLL_set_type_node)-1;
-  #endif
-  _BLL_this->e.c = nr;
-  _BLL_this->e.p++;
-}
-
-_BLL_fdec(void, Recycle,
-  _P(NodeReference_t) nr
-){
-  _BLL_fcall(_Node_Destruct, nr);
-  _BLL_fcall(_Recycle, nr);
-}
-
-_BLL_fdec(void, Recycle_NoDestruct,
-  _P(NodeReference_t) nr
-){
-  _BLL_fcall(_Recycle, nr);
-}
 
 _BLL_fdec(_P(NodeReference_t), _NewNode_empty_NoConstruct
 ){
@@ -539,15 +523,6 @@ _BLL_fdec(_P(NodeReference_t), NewNode
   _BLL_fdec(void, Unlink,
     _P(NodeReference_t) nr
   ){
-    #if BLL_set_debug_InvalidAction >= 1
-      if(_BLL_fcall(IsNRSentinel, nr) == 1){
-        __abort();
-      }
-      if(_BLL_fcall(IsNodeReferenceRecycled, nr) == 1){
-        __abort();
-      }
-    #endif
-
     _P(Node_t) *Node = _BLL_fcall(gln, nr);
 
     #if BLL_set_SafeNext == 1
@@ -576,7 +551,7 @@ _BLL_fdec(_P(NodeReference_t), NewNode
     _BLL_fcall(Recycle, nr);
   }
 
-  #ifndef BLL_set_NoSentinel
+  #if BLL_set_LinkSentinel
     _BLL_fdec(_P(NodeReference_t), GetNodeFirst
     ){
       return _BLL_fcall(_gln, _BLL_this->src)->NextNodeReference;
@@ -748,7 +723,7 @@ BLL_StructBegin(_P(nrtra_t))
         #error ?
       #endif
 
-      #if BLL_set_Link == 1 && !defined(BLL_set_NoSentinel)
+      #if BLL_set_LinkSentinel
         if(_BLL_nrtra_fcall(IsNRSentinel, _BLL_nrtra_this->nr) == true){
           continue;
         }
@@ -821,7 +796,7 @@ _BLL_fdec(void, _AfterInitNodes
 ){
   _BLL_this->e.p = 0;
   #if BLL_set_StoreFormat == 0
-    #if BLL_set_Link == 1 && !defined(BLL_set_NoSentinel)
+    #if BLL_set_LinkSentinel
       #ifdef BLL_set_CPP_CopyAtPointerChange
         if(NodeList.Possible < 2){
           _BLL_fcall(AllocateNewBuffer, 2);
@@ -834,13 +809,13 @@ _BLL_fdec(void, _AfterInitNodes
       _BLL_this->dst.NRI = 1;
     #endif
   #elif BLL_set_StoreFormat == 1
-    #if BLL_set_Link == 1 && !defined(BLL_set_NoSentinel)
+    #if BLL_set_LinkSentinel
       _BLL_this->src = _BLL_fcall(_NewNode_NoConstruct);
       _BLL_this->dst = _BLL_fcall(_NewNode_NoConstruct);
     #endif
   #endif
 
-  #if BLL_set_Link == 1 && !defined(BLL_set_NoSentinel)
+  #if BLL_set_LinkSentinel
     _BLL_fcall(_gln, _BLL_this->src)->NextNodeReference = _BLL_this->dst;
     _BLL_fcall(_gln, _BLL_this->dst)->PrevNodeReference = _BLL_this->src;
   #endif
@@ -859,7 +834,9 @@ _BLL_fdec(void, Open
     NodeSize += NodeDataSize;
     #if BLL_set_Link == 0
       /* for NextRecycled */
-      NodeSize += sizeof(_P(Node_t)) < sizeof(_P(NodeReference_t)) ? sizeof(_P(Node_t)) - sizeof(_P(NodeReference_t)) : 0;
+      #if BLL_set_Recycle
+        NodeSize += sizeof(_P(Node_t)) < sizeof(_P(NodeReference_t)) ? sizeof(_P(Node_t)) - sizeof(_P(NodeReference_t)) : 0;
+      #endif
     #endif
   #endif
 
@@ -932,8 +909,8 @@ _BLL_fdec(void, Clear
   _BLL_fcall(_AfterInitNodes);
 }
 
-/* TODO make implement of this with BLL_set_NoSentinel */
-#if BLL_set_Link == 1 && !defined(BLL_set_NoSentinel)
+/* TODO make implement of this with !BLL_set_LinkSentinel */
+#if BLL_set_LinkSentinel
   _BLL_fdec(bool, IsNodeReferenceFronter,
     _P(NodeReference_t) srcnr,
     _P(NodeReference_t) dstnr
@@ -953,17 +930,6 @@ _BLL_fdec(void, Clear
   _BLL_fdec(void, StartSafeNext,
     _P(NodeReference_t) nr
   ){
-    #if BLL_set_debug_InvalidAction == 1
-      #if BLL_set_SafeNext == 1
-        if(_BLL_this->SafeNext.NRI != (BLL_set_type_node)-1){
-          __abort();
-        }
-      #else
-        if(_BLL_this->SafeNextCount == BLL_set_SafeNext){
-          __abort();
-        }
-      #endif
-    #endif
     #if BLL_set_SafeNext == 1
       _BLL_this->SafeNext = nr;
     #else
@@ -972,17 +938,6 @@ _BLL_fdec(void, Clear
   }
   _BLL_fdec(_P(NodeReference_t), EndSafeNext
   ){
-    #if BLL_set_debug_InvalidAction == 1
-      #if BLL_set_SafeNext == 1
-        if(_BLL_this->SafeNext.NRI == (BLL_set_type_node)-1){
-          __abort();
-        }
-      #else
-        if(_BLL_this->SafeNextCount == 0){
-          __abort();
-        }
-      #endif
-    #endif
     _P(NodeReference_t) nr;
     #if BLL_set_SafeNext == 1
       nr = _BLL_this->SafeNext;
@@ -997,17 +952,6 @@ _BLL_fdec(void, Clear
     uint8_t Depth
   ){
     ++Depth;
-    #if BLL_set_debug_InvalidAction == 1
-      #if BLL_set_SafeNext == 1
-        if(Depth != 1){
-          __abort();
-        }
-      #else
-        if(Depth > _BLL_this->SafeNextCount){
-          __abort();
-        }
-      #endif
-    #endif
     #if BLL_set_SafeNext == 1
       return _BLL_this->SafeNext;
     #else

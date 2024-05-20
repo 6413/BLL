@@ -54,6 +54,15 @@
 #ifdef BLL_set_namespace
   #error outdated setting BLL_set_namespace. just put include bll inside namespace.
 #endif
+#if defined(BLL_set_debug_InvalidAction) || \
+  defined(BLL_set_debug_InvalidAction_srcAccess) || \
+  defined(BLL_set_debug_InvalidAction_dstAccess)
+
+  #error debug stuff will be implemented in future
+#endif
+#ifdef BLL_set_NoSentinel
+  #error outdated setting BLL_set_NoSentinel. now its BLL_set_LinkSentinel 1 or 0.
+#endif
 
 /* --- outdated --- */
 
@@ -96,11 +105,11 @@
 #ifndef BLL_set_PreferNextFirst
   #define BLL_set_PreferNextFirst 1
 #endif
+#ifndef BLL_set_Recycle
+  #define BLL_set_Recycle 1
+#endif
 #ifndef BLL_set_PadNode
   #define BLL_set_PadNode 0
-#endif
-#ifndef BLL_set_debug_InvalidAction
-  #define BLL_set_debug_InvalidAction 0
 #endif
 #ifndef BLL_set_SafeNext
   #define BLL_set_SafeNext 0
@@ -110,6 +119,13 @@
 #endif
 #ifndef BLL_set_Link
   #define BLL_set_Link 1
+#endif
+#ifndef BLL_set_LinkSentinel
+  #if BLL_set_Link
+    #define BLL_set_LinkSentinel 1
+  #else
+    #define BLL_set_LinkSentinel 0
+  #endif
 #endif
 #ifndef BLL_set_StoreFormat
   #define BLL_set_StoreFormat 0
@@ -126,11 +142,7 @@
 #endif
 
 #ifndef BLL_set_IsNodeRecycled
-  #if (BLL_set_debug_InvalidAction == 1 || defined(BLL_set_CPP_Node_ConstructDestruct)) && BLL_set_Link == 1
-    #define BLL_set_IsNodeRecycled 1
-  #else
-    #define BLL_set_IsNodeRecycled 0
-  #endif
+  #define BLL_set_IsNodeRecycled 0
 #endif
 
 #if BLL_set_Link == 0
@@ -139,25 +151,6 @@
   #endif
   #if BLL_set_IsNodeRecycled == 1
     #error BLL_set_IsNodeRecycled requires BLL_set_Link 1
-  #endif
-#endif
-
-#if BLL_set_debug_InvalidAction == 1
-  #if BLL_set_IsNodeRecycled == 0
-    #error BLL_set_IsNodeRecycled cant be 0 when BLL_set_debug_InvalidAction is 1
-  #endif
-  #ifndef BLL_set_debug_InvalidAction_srcAccess
-    #define BLL_set_debug_InvalidAction_srcAccess 1
-  #endif
-  #ifndef BLL_set_debug_InvalidAction_dstAccess
-    #define BLL_set_debug_InvalidAction_dstAccess 1
-  #endif
-#else
-  #ifndef BLL_set_debug_InvalidAction_srcAccess
-    #define BLL_set_debug_InvalidAction_srcAccess 0
-  #endif
-  #ifndef BLL_set_debug_InvalidAction_dstAccess
-    #define BLL_set_debug_InvalidAction_dstAccess 0
   #endif
 #endif
 
@@ -221,20 +214,17 @@
 #undef BLL_set_alloc_resize
 #undef BLL_set_alloc_open
 
-#undef BLL_set_debug_InvalidAction_dstAccess
-#undef BLL_set_debug_InvalidAction_srcAccess
-#ifdef BLL_set_NoSentinel
-  #undef BLL_set_NoSentinel
-#endif
 #undef BLL_set_CPP_nrsic
 #undef BLL_set_NodeSizeType
 #undef BLL_set_type_node
 #undef BLL_set_StoreFormat
+#undef BLL_set_LinkSentinel
 #undef BLL_set_Link
 #undef BLL_set_ResizeListAfterClear
 #undef BLL_set_SafeNext
 #undef BLL_set_IsNodeRecycled
-#undef BLL_set_debug_InvalidAction
+#undef BLL_set_PadNode
+#undef BLL_set_Recycle
 #undef BLL_set_PreferNextFirst
 #undef BLL_set_declare_rest
 #undef BLL_set_declare_NodeReference
