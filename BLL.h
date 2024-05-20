@@ -1,70 +1,4 @@
-/* +++ outdated +++ */
-
-#ifdef BLL_set_KeepSettings
-  #error outdated setting. dont use it
-#endif
-#ifdef BLL_set_declare_basic_types
-  #error outdated setting. now it shipped with BLL_set_declare_rest
-#endif
-#ifdef BLL_set_ConstantInvalidNodeReference_Listless
-  #error outdated setting.
-#endif
-#ifdef BLL_set_node_data
-  #error outdated setting BLL_set_node_data. use BLL_set_NodeData
-#endif
-#ifdef BLL_set_IsNodeUnlinked
-  #error outdated setting. now there is only BLL_set_IsNodeRecycled
-#endif
-#if defined(BLL_set_StoreFormat0_alloc_open) || defined(BLL_set_StoreFormat1_alloc_open)
-  #error outdated setting. now it's BLL_set_alloc_open
-#endif
-#if defined(BLL_set_StoreFormat0_alloc_resize)
-  #error outdated setting. now it's BLL_set_alloc_resize
-#endif
-#if defined(BLL_set_StoreFormat0_alloc_close) || defined(BLL_set_StoreFormat1_alloc_close)
-  #error outdated setting. now it's BLL_set_alloc_close
-#endif
-#ifdef BLL_set_BaseLibrary
-  #error BLL_set_BaseLibrary is no longer supported.
-  #error look at down line of this error to see the baselibrary config.
-  /*
-  #if BLL_set_BaseLibrary == 0
-    #define BLL_set_Language 0
-  #elif BLL_set_BaseLibrary == 1
-    #ifndef BLL_set_Language
-      #define BLL_set_Language 1
-    #endif
-    #ifndef BLL_set_CPP_ConstructDestruct
-      #define BLL_set_CPP_ConstructDestruct
-    #endif
-    #ifndef BLL_set_CPP_Node_ConstructDestruct
-      #define BLL_set_CPP_Node_ConstructDestruct
-    #endif
-    #ifndef BLL_set_CPP_nrsic
-      #define BLL_set_CPP_nrsic 1
-    #endif
-  #else
-    #error ?
-  #endif
-  */
-#endif
-#ifdef BLL_set_UseUninitialisedValues
-  #error outdated setting BLL_set_UseUninitialisedValues. __sanit used instead.
-#endif
-#ifdef BLL_set_namespace
-  #error outdated setting BLL_set_namespace. just put include bll inside namespace.
-#endif
-#if defined(BLL_set_debug_InvalidAction) || \
-  defined(BLL_set_debug_InvalidAction_srcAccess) || \
-  defined(BLL_set_debug_InvalidAction_dstAccess)
-
-  #error debug stuff will be implemented in future
-#endif
-#ifdef BLL_set_NoSentinel
-  #error outdated setting BLL_set_NoSentinel. now its BLL_set_LinkSentinel 1 or 0.
-#endif
-
-/* --- outdated --- */
+#include "internal/CheckDeprecated.h"
 
 /* can be used for debug internal code inside bll with checking preprocessor */
 #ifndef BLL_set_Mark
@@ -101,7 +35,6 @@
 #ifndef BLL_set_declare_rest
   #define BLL_set_declare_rest 1
 #endif
-/* if you access next more than prev it can make performance difference */
 #ifndef BLL_set_PreferNextFirst
   #define BLL_set_PreferNextFirst 1
 #endif
@@ -137,21 +70,8 @@
   #define BLL_set_NodeSizeType uint32_t
 #endif
 
-#ifndef BLL_set_CPP_nrsic
-  #define BLL_set_CPP_nrsic 0
-#endif
-
 #ifndef BLL_set_IsNodeRecycled
   #define BLL_set_IsNodeRecycled 0
-#endif
-
-#if BLL_set_Link == 0
-  #if BLL_set_SafeNext != 0
-    #error SafeNext is not possible when there is not linking.
-  #endif
-  #if BLL_set_IsNodeRecycled == 1
-    #error BLL_set_IsNodeRecycled requires BLL_set_Link 1
-  #endif
 #endif
 
 #ifndef BLL_set_alloc_open
@@ -163,14 +83,22 @@
 #ifndef BLL_set_alloc_close
   #define BLL_set_alloc_close free
 #endif
-#if BLL_set_StoreFormat == 0
-#elif BLL_set_StoreFormat == 1
-  #if defined(BLL_set_CPP_CopyAtPointerChange)
-    #error StoreFormat 1 doesn't change pointers.
-  #endif
-  #ifndef BLL_set_StoreFormat1_ElementPerBlock
-    #define BLL_set_StoreFormat1_ElementPerBlock 1
-  #endif
+
+#ifndef BLL_set_StoreFormat1_ElementPerBlock
+  #define BLL_set_StoreFormat1_ElementPerBlock 1
+#endif
+
+#ifndef BLL_set_CPP_nrsic
+  #define BLL_set_CPP_nrsic 0
+#endif
+#ifndef BLL_set_CPP_Node_ConstructDestruct
+  #define BLL_set_CPP_Node_ConstructDestruct 0
+#endif
+#ifndef BLL_set_CPP_ConstructDestruct
+  #define BLL_set_CPP_ConstructDestruct 0
+#endif
+#ifndef BLL_set_CPP_CopyAtPointerChange
+  #define BLL_set_CPP_CopyAtPointerChange 0
 #endif
 
 #include "internal/PrepareAndInclude.h"
@@ -180,20 +108,6 @@
 #endif
 #ifdef BLL_set_Overload_Declare
   #undef BLL_set_Overload_Declare
-#endif
-
-#ifdef BLL_set_StoreFormat1_ElementPerBlock
-  #undef BLL_set_StoreFormat1_ElementPerBlock
-#endif
-
-#ifdef BLL_set_CPP_CopyAtPointerChange
-  #undef BLL_set_CPP_CopyAtPointerChange
-#endif
-#ifdef BLL_set_CPP_ConstructDestruct
-  #undef BLL_set_CPP_ConstructDestruct
-#endif
-#ifdef BLL_set_CPP_Node_ConstructDestruct
-  #undef BLL_set_CPP_Node_ConstructDestruct
 #endif
 
 #ifdef BLL_set_NodeData
@@ -210,11 +124,17 @@
   #undef BLL_set_MultipleType_Sizes
 #endif
 
+#undef BLL_set_CPP_CopyAtPointerChange
+#undef BLL_set_CPP_ConstructDestruct
+#undef BLL_set_CPP_Node_ConstructDestruct
+#undef BLL_set_CPP_nrsic
+
+#undef BLL_set_StoreFormat1_ElementPerBlock
+
 #undef BLL_set_alloc_close
 #undef BLL_set_alloc_resize
 #undef BLL_set_alloc_open
 
-#undef BLL_set_CPP_nrsic
 #undef BLL_set_NodeSizeType
 #undef BLL_set_type_node
 #undef BLL_set_StoreFormat

@@ -41,7 +41,7 @@ BLL_StructBegin(_P(Node_t))
     #endif
   #endif
   #ifdef _BLL_HaveConstantNodeData
-    #ifdef BLL_set_CPP_Node_ConstructDestruct
+    #if BLL_set_CPP_Node_ConstructDestruct
       _P(NodeData_t) data;
       #if BLL_set_Link == 0
         uint8_t _PaddingForNextRecycled[
@@ -103,7 +103,7 @@ BLL_StructEnd(_P(Node_t))
   #elif defined(_BLL_HaveConstantNodeData)
     #define BVEC_set_NodeData _P(Node_t)
   #endif
-  #if defined(BLL_set_CPP_CopyAtPointerChange)
+  #if BLL_set_CPP_CopyAtPointerChange
     #define BVEC_set_HandleAllocate 0
   #endif
   #define BVEC_set_alloc_open BLL_set_alloc_open
@@ -329,7 +329,7 @@ _BLL_fdec(BLL_set_type_node, Usage
 _BLL_fdec(void, _Node_Construct,
   _P(NodeReference_t) nr
 ){
-  #ifdef BLL_set_CPP_Node_ConstructDestruct
+  #if BLL_set_CPP_Node_ConstructDestruct
     #if defined(BLL_set_MultipleType_LinkIndex)
       #error implement this
     #else
@@ -340,7 +340,7 @@ _BLL_fdec(void, _Node_Construct,
 _BLL_fdec(void, _Node_Destruct,
   _P(NodeReference_t) nr
 ){
-  #ifdef BLL_set_CPP_Node_ConstructDestruct
+  #if BLL_set_CPP_Node_ConstructDestruct
     #if defined(BLL_set_MultipleType_LinkIndex)
       #error implement this
     #else
@@ -411,7 +411,7 @@ _BLL_fdec(_P(NodeReference_t), _NewNode_alloc_NoConstruct
   #if BLL_set_StoreFormat == 0
     r.NRI = _BLL_this->NodeList.Current;
 
-    #ifdef BLL_set_CPP_CopyAtPointerChange
+    #if BLL_set_CPP_CopyAtPointerChange
       if(NodeList.Current == NodeList.Possible){
         _BLL_fcall(AllocateNewBuffer, NodeList.Current + 1);
       }
@@ -744,7 +744,7 @@ BLL_StructBegin(_P(nrtra_t))
   BLL_StructEnd(_P(nrtra_t))
 #endif
 
-#ifdef BLL_set_CPP_CopyAtPointerChange
+#if BLL_set_CPP_CopyAtPointerChange
   #if !defined(_BLL_HaveConstantNodeData)
     #error those who trigger this, will burn in hell
   #endif
@@ -770,7 +770,7 @@ BLL_StructBegin(_P(nrtra_t))
 
 _BLL_fdec(void, _DestructAllNodes
 ){
-  #ifdef BLL_set_CPP_Node_ConstructDestruct
+  #if BLL_set_CPP_Node_ConstructDestruct
     _P(nrtra_t) nrtra;
     nrtra.Open(_BLL_this);
     while(nrtra.Loop(_BLL_this) == true){
@@ -797,7 +797,7 @@ _BLL_fdec(void, _AfterInitNodes
   _BLL_this->e.p = 0;
   #if BLL_set_StoreFormat == 0
     #if BLL_set_LinkSentinel
-      #ifdef BLL_set_CPP_CopyAtPointerChange
+      #if BLL_set_CPP_CopyAtPointerChange
         if(NodeList.Possible < 2){
           _BLL_fcall(AllocateNewBuffer, 2);
         }
@@ -821,7 +821,7 @@ _BLL_fdec(void, _AfterInitNodes
   #endif
 }
 
-#ifdef BLL_set_CPP_ConstructDestruct
+#if BLL_set_CPP_ConstructDestruct
   private:
 #endif
 _BLL_fdec(void, Open
@@ -866,7 +866,7 @@ _BLL_fdec(void, Close
 ){
   _BLL_fcall(_DestructAllNodes);
   #if BLL_set_StoreFormat == 0
-    #ifdef BLL_set_CPP_CopyAtPointerChange
+    #if BLL_set_CPP_CopyAtPointerChange
       BLL_set_alloc_close(NodeList.ptr);
     #endif
     _P(_NodeList_Close)(&_BLL_this->NodeList);
@@ -875,7 +875,7 @@ _BLL_fdec(void, Close
     _P(_BlockList_Close)(&_BLL_this->BlockList);
   #endif
 }
-#ifdef BLL_set_CPP_ConstructDestruct
+#if BLL_set_CPP_ConstructDestruct
   public:
 #endif
 
@@ -894,7 +894,7 @@ _BLL_fdec(void, Clear
   #else
     #if BLL_set_StoreFormat == 0
       _BLL_this->NodeList.Current = 0;
-      #if defined(BLL_set_CPP_CopyAtPointerChange)
+      #if BLL_set_CPP_CopyAtPointerChange
         /* TODO */
       #else
         _P(_NodeList_Reserve)(&_BLL_this->NodeList, 2);
@@ -973,7 +973,7 @@ _BLL_fdec(void, Clear
     }
   #endif
 
-  #ifdef BLL_set_CPP_ConstructDestruct
+  #if BLL_set_CPP_ConstructDestruct
     _P(t)(
       #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
         BLL_set_NodeSizeType NodeDataSize

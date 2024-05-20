@@ -1,7 +1,6 @@
+#include "CheckLogic.h"
+
 #if defined(BLL_set_NodeData) || defined(BLL_set_NodeDataType)
-  #if defined(BLL_set_NodeData) && defined(BLL_set_NodeDataType)
-    #error no
-  #endif
   #define _BLL_HaveConstantNodeData
 #endif
 
