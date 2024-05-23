@@ -151,16 +151,6 @@ BLL_StructEnd(_P(Node_t))
   }
 #endif
 
-static
-bool
-_P(IsNodeReferenceEqual)
-(
-  _P(NodeReference_t) p0,
-  _P(NodeReference_t) p1
-){
-  return p0.NRI == p1.NRI;
-}
-
 BLL_StructBegin(_P(t))
   #if BLL_set_StoreFormat == 0
     _P(_NodeList_t) NodeList;
@@ -225,9 +215,9 @@ _BLL_fdec(bool, inri,
   _P(NodeReference_t) nr
 ){
   #if BLL_set_StoreFormat == 0
-    return nr.NRI >= _BLL_this->NodeList.Current;
+    return *_P(gnrint)(&nr) >= _BLL_this->NodeList.Current;
   #elif BLL_set_StoreFormat == 1
-    return nr.NRI >= _BLL_this->NodeCurrent;
+    return *_P(gnrint)(&nr) >= _BLL_this->NodeCurrent;
   #endif
 }
 
@@ -235,15 +225,17 @@ _BLL_fdecpi(_P(Node_t) *, _GetNodeByReference,
   _P(NodeReference_t) nr
 ){
   #if BLL_set_StoreFormat == 0
-    #if defined(BLL_set_MultipleType_Sizes)
-      return (_P(Node_t) *)_P(_NodeList_GetNode)(&_BLL_this->NodeList, nr.NRI, PointerIndex);
-    #else
-      return (_P(Node_t) *)_P(_NodeList_GetNode)(&_BLL_this->NodeList, nr.NRI);
-    #endif
+    return (_P(Node_t) *)_P(_NodeList_GetNode)(
+      &_BLL_this->NodeList,
+      *_P(gnrint)(&nr)
+      #if defined(BLL_set_MultipleType_Sizes)
+        , PointerIndex
+      #endif
+    );
   #elif BLL_set_StoreFormat == 1
     #if defined(_BLL_HaveConstantNodeData)
-      _P(BlockIndex_t) bi = nr.NRI / BLL_set_StoreFormat1_ElementPerBlock;
-      _P(BlockModulo_t) bm = nr.NRI % BLL_set_StoreFormat1_ElementPerBlock;
+      _P(BlockIndex_t) bi = *_P(gnrint)(&nr) / BLL_set_StoreFormat1_ElementPerBlock;
+      _P(BlockModulo_t) bm = *_P(gnrint)(&nr) % BLL_set_StoreFormat1_ElementPerBlock;
       /* TODO this looks like mess check it */
       _P(Node_t) *n = &((_P(Node_t) *)((void **)&_BLL_this->BlockList.ptr[0])[bi])[bm];
       return n;
@@ -358,10 +350,30 @@ _BLL_fdec(void, _Node_Destruct,
   }
 
   #if BLL_set_IsNodeRecycled == 1
+    /* get recycle value */
+    _BLL_fdec(_P(NodeReference_t), _grv,
+    ){
+      return _P(gnric)();
+    }
+    /* get non recycle value */
+    _BLL_fdec(_P(NodeReference_t), _gnrv,
+    ){
+      _P(NodeReference_t) nr;
+      *_P(gnrint)(&nr) = (BLL_set_type_node)-2;
+      return nr;
+    }
+
+    /* get recycle value of node reference */
+    _BLL_fdec(_P(NodeReference_t) *, _grvonr,
+      _P(NodeReference_t) *nr
+    ){
+      return _BLL_fcall(_GetNRTHOfNR, nr, 1);
+    }
+
     _BLL_fdec(bool, IsNodeReferenceRecycled,
       _P(NodeReference_t) nr
     ){
-      return _BLL_fcall(_GetNRTHOfNR, nr, 1)->NRI == (BLL_set_type_node)-1;
+      return _P(inre)(_BLL_fcall(_grvonr, nr), _BLL_fcall(_grv)());
     }
   #endif
 
@@ -372,7 +384,7 @@ _BLL_fdec(void, _Node_Destruct,
 
     *NextRecycled = _BLL_this->e.c;
     #if BLL_set_IsNodeRecycled == 1
-      _BLL_fcall(_GetNRTHOfNR, nr, 1)->NRI = (BLL_set_type_node)-1;
+      *_BLL_fcall(_grvonr, nr) = _BLL_fcall(grv);
     #endif
     _BLL_this->e.c = nr;
     _BLL_this->e.p++;
@@ -409,7 +421,7 @@ _BLL_fdec(_P(NodeReference_t), _NewNode_alloc_NoConstruct
 ){
   _P(NodeReference_t) r;
   #if BLL_set_StoreFormat == 0
-    r.NRI = _BLL_this->NodeList.Current;
+    *_P(gnrint)(&r) = _BLL_this->NodeList.Current;
 
     #if BLL_set_CPP_CopyAtPointerChange
       if(NodeList.Current == NodeList.Possible){
@@ -423,7 +435,7 @@ _BLL_fdec(_P(NodeReference_t), _NewNode_alloc_NoConstruct
     if(_BLL_this->NodeCurrent % BLL_set_StoreFormat1_ElementPerBlock == 0){
       _BLL_fcall(_PushNewBlock);
     }
-    r.NRI = _BLL_this->NodeCurrent++;
+    *_P(gnrint)(&r) = _BLL_this->NodeCurrent++;
   #endif
   return r;
 }
@@ -446,7 +458,7 @@ _BLL_fdec(_P(NodeReference_t), NewNode
 ){
   _P(NodeReference_t) nr = _BLL_fcall(_NewNode_NoConstruct);
   #if BLL_set_IsNodeRecycled == 1
-    _BLL_fcall(_GetNRTHOfNR, nr, 1)->NRI = (BLL_set_type_node)-2;
+    *_BLL_fcall(_grvonr, nr) = _BLL_fcall(_gnrv);
   #endif
   _BLL_fcall(_Node_Construct, nr);
   return nr;
@@ -623,10 +635,10 @@ _BLL_fdec(_P(NodeReference_t), NewNode
     _BLL_fdec(bool, IsNRSentinel,
       _P(NodeReference_t) nr
     ){
-      if(nr.NRI == _BLL_this->src.NRI){
+      if(*_P(gnrint)(&nr) == *_P(gnrint)(&_BLL_this->src)){
         return 1;
       }
-      if(nr.NRI == _BLL_this->dst.NRI){
+      if(*_P(gnrint)(&nr) == *_P(gnrint)(&_BLL_this->src)){
         return 1;
       }
       return 0;
@@ -694,11 +706,11 @@ BLL_StructBegin(_P(nrtra_t))
       __MemorySet(0, _BLL_nrtra_this->_RecycledArray, size);
       _P(NodeReference_t) cnr = bll->e.c;
       for(BLL_set_type_node i = bll->e.p; i != 0; --i){
-        _BLL_nrtra_this->_RecycledArray[cnr.NRI] = 1;
+        _BLL_nrtra_this->_RecycledArray[*_P(gnrint)(&cnr)] = 1;
         cnr = *_BLL_nrtra_fcall(_grecnrofnr, cnr);
       }
     #endif
-    _BLL_nrtra_this->nr.NRI = (BLL_set_type_node)-1;
+    *_P(gnrint)(&_BLL_nrtra_this->nr) = (BLL_set_type_node)-1;
   }
   _BLL_nrtra_fdec(void, Close
   ){
@@ -709,10 +721,13 @@ BLL_StructBegin(_P(nrtra_t))
 
   _BLL_nrtra_fdec(bool, Loop
   ){
-    ++_BLL_nrtra_this->nr.NRI;
-    for(; _BLL_nrtra_this->nr.NRI < _BLL_nrtra_count; ++_BLL_nrtra_this->nr.NRI){
+    ++*_P(gnrint)(&_BLL_nrtra_this->nr);
+    for(;
+      *_P(gnrint)(&_BLL_nrtra_this->nr) < _BLL_nrtra_count;
+      ++*_P(gnrint)(&_BLL_nrtra_this->nr)
+    ){
       #if BLL_set_IsNodeRecycled == 0
-        if(_BLL_nrtra_this->_RecycledArray[_BLL_nrtra_this->nr.NRI] == 1){
+        if(_BLL_nrtra_this->_RecycledArray[*_P(gnrint)(&_BLL_nrtra_this->nr)] == 1){
           continue;
         }
       #elif BLL_set_IsNodeRecycled == 1
@@ -759,7 +774,9 @@ BLL_StructBegin(_P(nrtra_t))
     _P(nrtra_t) nrtra;
     nrtra.Open(_BLL_this);
     while(nrtra.Loop(_BLL_this) == true){
-      new (&((_P(Node_t) *)np)[nrtra.nr.NRI].data) _P(NodeData_t)(((_P(Node_t) *)NodeList.ptr)[nrtra.nr.NRI].data);
+      new
+        (&((_P(Node_t) *)np)[*_P(gnrint)(&nrtra.nr)].data)
+        _P(NodeData_t)(((_P(Node_t) *)NodeList.ptr)[*_P(gnrint)(&nrtra.nr)].data);
     }
     nrtra.Close(_BLL_this);
 
@@ -805,8 +822,8 @@ _BLL_fdec(void, _AfterInitNodes
 
       _P(_NodeList_AddEmpty)(&_BLL_this->NodeList, 2);
 
-      _BLL_this->src.NRI = 0;
-      _BLL_this->dst.NRI = 1;
+      *_P(gnrint)(&_BLL_this->src) = 0;
+      *_P(gnrint)(&_BLL_this->dst) = 1;
     #endif
   #elif BLL_set_StoreFormat == 1
     #if BLL_set_LinkSentinel
@@ -841,7 +858,7 @@ _BLL_fdec(void, Open
   #endif
 
   #if __sanit
-    _BLL_this->e.c.NRI = 0;
+    *_P(gnrint)(&_BLL_this->e.c) = 0;
   #endif
 
   #if BLL_set_StoreFormat == 0
@@ -857,7 +874,7 @@ _BLL_fdec(void, Open
   _BLL_fcall(_AfterInitNodes);
 
   #if BLL_set_SafeNext == 1
-    _BLL_this->SafeNext.NRI = (BLL_set_type_node)-1;
+    _P(snric)(&_BLL_this->SafeNext); /* TOOD but why we set it initially? */
   #elif BLL_set_SafeNext > 1
     _BLL_this->SafeNextCount = 0;
   #endif
@@ -879,7 +896,7 @@ _BLL_fdec(void, Close
   public:
 #endif
 
-/* TODO those 2 numbers in this function needs to be flexible */
+/* TOOD those 2 numbers in this function needs to be flexible */
 _BLL_fdec(void, Clear
 ){
   _BLL_fcall(_DestructAllNodes);
@@ -918,10 +935,10 @@ _BLL_fdec(void, Clear
     do{
       _P(Node_t) *srcNode = _BLL_fcall(gln, srcnr);
       srcnr = srcNode->NextNodeReference;
-      if(_P(IsNodeReferenceEqual)(srcnr, dstnr)){
+      if(_P(inre)(srcnr, dstnr)){
         return 0;
       }
-    }while(!_P(IsNodeReferenceEqual)(srcnr, _BLL_this->dst));
+    }while(!_P(inre)(srcnr, _BLL_this->dst));
     return 1;
   }
 #endif
@@ -941,7 +958,7 @@ _BLL_fdec(void, Clear
     _P(NodeReference_t) nr;
     #if BLL_set_SafeNext == 1
       nr = _BLL_this->SafeNext;
-      _BLL_this->SafeNext.NRI = (BLL_set_type_node)-1;
+      _P(snric)(&_BLL_this->SafeNext); /* TODO but why we set? */
     #else
       nr = _BLL_this->SafeNext[--_BLL_this->SafeNextCount];
     #endif

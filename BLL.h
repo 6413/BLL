@@ -35,6 +35,9 @@
 #ifndef BLL_set_declare_rest
   #define BLL_set_declare_rest 1
 #endif
+#ifndef BLL_set_IntegerNR
+  #define BLL_set_IntegerNR 0
+#endif
 #ifndef BLL_set_PreferNextFirst
   #define BLL_set_PreferNextFirst 1
 #endif
@@ -146,6 +149,7 @@
 #undef BLL_set_PadNode
 #undef BLL_set_Recycle
 #undef BLL_set_PreferNextFirst
+#undef BLL_set_IntegerNR
 #undef BLL_set_declare_rest
 #undef BLL_set_declare_NodeReference
 #undef BLL_set_StructFormat

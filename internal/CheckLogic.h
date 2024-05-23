@@ -13,6 +13,9 @@
 #if BLL_set_declare_rest < 0 || BLL_set_declare_rest > 1
   #error invalid BLL_set_declare_rest
 #endif
+#if BLL_set_IntegerNR < 0 || BLL_set_IntegerNR > 1
+  #error invalid BLL_set_IntegerNR
+#endif
 #if BLL_set_PreferNextFirst < 0 || BLL_set_PreferNextFirst > 1
   #error invalid BLL_set_PreferNextFirst
 #endif
