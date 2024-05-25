@@ -404,19 +404,15 @@ _BLL_fdec(void, _Node_Destruct,
   }
 #endif
 
-_BLL_fdec(_P(NodeReference_t), _NewNode_empty_NoConstruct
-){
-  _P(NodeReference_t) nr = _BLL_this->e.c;
-  _BLL_this->e.c = *_BLL_fcall(_grecnrofnr, nr);
-  _BLL_this->e.p--;
-  return nr;
-}
-_BLL_fdec(_P(NodeReference_t), NewNode_empty
-){
-  _P(NodeReference_t) nr = _BLL_fcall(_NewNode_empty_NoConstruct);
-  _BLL_fcall(_Node_Construct, nr);
-  return nr;
-}
+#if BLL_set_Recycle
+  _BLL_fdec(_P(NodeReference_t), _NewNode_empty_NoConstruct
+  ){
+    _P(NodeReference_t) nr = _BLL_this->e.c;
+    _BLL_this->e.c = *_BLL_fcall(_grecnrofnr, nr);
+    _BLL_this->e.p--;
+    return nr;
+  }
+#endif
 _BLL_fdec(_P(NodeReference_t), _NewNode_alloc_NoConstruct
 ){
   _P(NodeReference_t) r;
@@ -425,7 +421,7 @@ _BLL_fdec(_P(NodeReference_t), _NewNode_alloc_NoConstruct
 
     #if BLL_set_CPP_CopyAtPointerChange
       if(NodeList.Current == NodeList.Possible){
-        _BLL_fcall(AllocateNewBuffer, NodeList.Current + 1);
+        AllocateNewBuffer(NodeList.Current + 1);
       }
     #endif
 
@@ -439,20 +435,14 @@ _BLL_fdec(_P(NodeReference_t), _NewNode_alloc_NoConstruct
   #endif
   return r;
 }
-_BLL_fdec(_P(NodeReference_t), NewNode_alloc
-){
-  _P(NodeReference_t) nr = _BLL_fcall(_NewNode_alloc_NoConstruct);
-  _BLL_fcall(_Node_Construct, nr);
-  return nr;
-}
 _BLL_fdec(_P(NodeReference_t), _NewNode_NoConstruct
 ){
-  if(_BLL_this->e.p){
-    return _BLL_fcall(_NewNode_empty_NoConstruct);
-  }
-  else{
-    return _BLL_fcall(_NewNode_alloc_NoConstruct);
-  }
+  #if BLL_set_Recycle
+    if(_BLL_this->e.p){
+      return _BLL_fcall(_NewNode_empty_NoConstruct);
+    }
+  #endif
+  return _BLL_fcall(_NewNode_alloc_NoConstruct);
 }
 _BLL_fdec(_P(NodeReference_t), NewNode
 ){
@@ -462,6 +452,13 @@ _BLL_fdec(_P(NodeReference_t), NewNode
   #endif
   _BLL_fcall(_Node_Construct, nr);
   return nr;
+}
+_BLL_fdec(void, NewTillUsage,
+  BLL_set_type_node Amount
+){
+  while(_BLL_fcall(Usage) < Amount){
+    _BLL_fcall(NewNode);
+  }
 }
 
 #if BLL_set_Link == 1
@@ -670,94 +667,7 @@ _BLL_fdec(_P(NodeReference_t), NewNode
   #endif
 #endif
 
-BLL_StructBegin(_P(nrtra_t))
-  _P(NodeReference_t) nr;
-  #if BLL_set_IsNodeRecycled == 0
-    uint8_t *_RecycledArray;
-  #endif
-
-#if BLL_set_Language == 0
-  BLL_StructEnd(_P(nrtra_t))
-#endif
-
-  #if BLL_set_StoreFormat == 0
-    #define _BLL_nrtra_count bll->NodeList.Current
-  #elif BLL_set_StoreFormat == 1
-    #define _BLL_nrtra_count bll->NodeCurrent
-  #endif
-
-  #if BLL_set_Language == 0
-    #define _BLL_nrtra_this This
-    #define _BLL_nrtra_fdec(rtype, name, ...) static rtype CONCAT2(_P(nrtra_),name)(_P(nrtra_t) *This, _P(t) *bll, ##__VA_ARGS__)
-    #define _BLL_nrtra_fcall(name, ...) _P(name)(bll, ##__VA_ARGS__)
-  #elif BLL_set_Language == 1
-    #define _BLL_nrtra_this this
-    #define _BLL_nrtra_fdec(rtype, name, ...) rtype name(_P(t) *bll, ##__VA_ARGS__)
-    #define _BLL_nrtra_fcall(name, ...) bll->name(__VA_ARGS__)
-  #else
-    #error ?
-  #endif
-
-  _BLL_nrtra_fdec(void, Open
-  ){
-    #if BLL_set_IsNodeRecycled == 0
-      uintptr_t size = _BLL_nrtra_count * sizeof(uint8_t);
-      _BLL_nrtra_this->_RecycledArray = (uint8_t *)BLL_set_alloc_open(size);
-      __MemorySet(0, _BLL_nrtra_this->_RecycledArray, size);
-      _P(NodeReference_t) cnr = bll->e.c;
-      for(BLL_set_type_node i = bll->e.p; i != 0; --i){
-        _BLL_nrtra_this->_RecycledArray[*_P(gnrint)(&cnr)] = 1;
-        cnr = *_BLL_nrtra_fcall(_grecnrofnr, cnr);
-      }
-    #endif
-    *_P(gnrint)(&_BLL_nrtra_this->nr) = (BLL_set_type_node)-1;
-  }
-  _BLL_nrtra_fdec(void, Close
-  ){
-    #if BLL_set_IsNodeRecycled == 0
-      BLL_set_alloc_close(_BLL_nrtra_this->_RecycledArray);
-    #endif
-  }
-
-  _BLL_nrtra_fdec(bool, Loop
-  ){
-    ++*_P(gnrint)(&_BLL_nrtra_this->nr);
-    for(;
-      *_P(gnrint)(&_BLL_nrtra_this->nr) < _BLL_nrtra_count;
-      ++*_P(gnrint)(&_BLL_nrtra_this->nr)
-    ){
-      #if BLL_set_IsNodeRecycled == 0
-        if(_BLL_nrtra_this->_RecycledArray[*_P(gnrint)(&_BLL_nrtra_this->nr)] == 1){
-          continue;
-        }
-      #elif BLL_set_IsNodeRecycled == 1
-        if(_BLL_nrtra_fcall(IsNodeReferenceRecycled, _BLL_nrtra_this->nr) == true){
-          continue;
-        }
-      #else
-        #error ?
-      #endif
-
-      #if BLL_set_LinkSentinel
-        if(_BLL_nrtra_fcall(IsNRSentinel, _BLL_nrtra_this->nr) == true){
-          continue;
-        }
-      #endif
-
-      return 1;
-    }
-    return 0;
-  }
-
-  #undef _BLL_nrtra_this
-  #undef _BLL_nrtra_fdec
-  #undef _BLL_nrtra_fcall
-
-  #undef _BLL_nrtra_count
-
-#if BLL_set_Language == 1
-  BLL_StructEnd(_P(nrtra_t))
-#endif
+#include "nrtra.h"
 
 #if BLL_set_CPP_CopyAtPointerChange
   #if !defined(_BLL_HaveConstantNodeData)
@@ -767,7 +677,7 @@ BLL_StructBegin(_P(nrtra_t))
   _BLL_fdec(void, AllocateNewBuffer,
     BLL_set_type_node Amount
   ){
-    NodeList.Possible = _P(_NodeList_GetBufferAmount0)(&_BLL_this->NodeList, Amount);
+    _P(_NodeList_SetPossibleWith)(&NodeList, Amount);
     void *np = BLL_set_alloc_open(NodeList.Possible * sizeof(_P(Node_t)));
     __MemoryCopy(NodeList.ptr, np, NodeList.Current * sizeof(_P(Node_t)));
 
@@ -811,10 +721,14 @@ _BLL_fdec(void, _DestructAllNodes
 
 _BLL_fdec(void, _AfterInitNodes
 ){
-  _BLL_this->e.p = 0;
+  #if BLL_set_Recycle
+    _BLL_this->e.p = 0;
+  #endif
+
   #if BLL_set_StoreFormat == 0
     #if BLL_set_LinkSentinel
       #if BLL_set_CPP_CopyAtPointerChange
+        /* TOOD better do this at Open */
         if(NodeList.Possible < 2){
           _BLL_fcall(AllocateNewBuffer, 2);
         }
@@ -913,6 +827,7 @@ _BLL_fdec(void, Clear
       _BLL_this->NodeList.Current = 0;
       #if BLL_set_CPP_CopyAtPointerChange
         /* TODO */
+        __abort();
       #else
         _P(_NodeList_Reserve)(&_BLL_this->NodeList, 2);
       #endif
@@ -988,6 +903,11 @@ _BLL_fdec(void, Clear
     _P(NodeData_t) *operator[](_P(NodeReference_t) NR){
       return GetNodeReferenceData(NR);
     }
+  #endif
+
+  #if !BLL_set_Recycle && BLL_set_IntegerNR && !BLL_set_LinkSentinel
+    _P(NodeData_t) *begin() { return &operator[](0); }
+    _P(NodeData_t) *end() { return &operator[](Usage()); }
   #endif
 
   #if BLL_set_CPP_ConstructDestruct

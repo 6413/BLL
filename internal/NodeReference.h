@@ -110,8 +110,7 @@ static
 bool
 _P(inric)
 (
-  _P(NodeReference_t) NodeReference
+  _P(NodeReference_t) nr
 ){
-  _P(NodeReference_t) nric = _P(gnric)();
-  return nric.NRI == NodeReference.NRI;
+  return _P(inre)(nr, _P(gnric)());
 }
