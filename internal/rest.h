@@ -367,13 +367,13 @@ _BLL_fdec(void, _Node_Destruct,
     _BLL_fdec(_P(NodeReference_t) *, _grvonr,
       _P(NodeReference_t) *nr
     ){
-      return _BLL_fcall(_GetNRTHOfNR, nr, 1);
+      return _BLL_fcall(_GetNRTHOfNR, *nr, 1);
     }
 
     _BLL_fdec(bool, IsNodeReferenceRecycled,
       _P(NodeReference_t) nr
     ){
-      return _P(inre)(_BLL_fcall(_grvonr, nr), _BLL_fcall(_grv)());
+      return _P(inre)(nr, _BLL_fcall(_grv));
     }
   #endif
 
@@ -384,7 +384,7 @@ _BLL_fdec(void, _Node_Destruct,
 
     *NextRecycled = _BLL_this->e.c;
     #if BLL_set_IsNodeRecycled == 1
-      *_BLL_fcall(_grvonr, nr) = _BLL_fcall(grv);
+      *_BLL_fcall(_grvonr, &nr) = _BLL_fcall(_grv);
     #endif
     _BLL_this->e.c = nr;
     _BLL_this->e.p++;
@@ -448,7 +448,7 @@ _BLL_fdec(_P(NodeReference_t), NewNode
 ){
   _P(NodeReference_t) nr = _BLL_fcall(_NewNode_NoConstruct);
   #if BLL_set_IsNodeRecycled == 1
-    *_BLL_fcall(_grvonr, nr) = _BLL_fcall(_gnrv);
+    *_BLL_fcall(_grvonr, &nr) = _BLL_fcall(_gnrv);
   #endif
   _BLL_fcall(_Node_Construct, nr);
   return nr;

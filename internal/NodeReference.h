@@ -33,7 +33,7 @@
         }
       #else
         _P(NodeReference_t)() = default;
-        _P(NodeReference_t)(bool p){
+        explicit _P(NodeReference_t)(bool p){
           sic();
         }
       #endif
