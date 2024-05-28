@@ -755,10 +755,7 @@ _BLL_fdec(void, _AfterInitNodes
 #if BLL_set_CPP_ConstructDestruct
   private:
 #endif
-_BLL_fdec(void, Open
-  #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
-    , BLL_set_NodeSizeType NodeDataSize
-  #endif
+_BLL_fdecnds(void, Open
 ){
   BLL_set_NodeSizeType NodeSize = sizeof(_P(Node_t));
   #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)

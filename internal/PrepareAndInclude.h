@@ -30,6 +30,12 @@
     #error ?
   #endif
 
+  #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
+    #define _BLL_fdecnds(rtype, name, ...) _BLL_fdec(rtype, name, BLL_set_NodeSizeType NodeDataSize, ##__VA_ARGS__)
+  #else
+    #define _BLL_fdecnds _BLL_fdec
+  #endif
+
   #if defined(BLL_set_MultipleType_Sizes)
     #define _BLL_fdecpi(rtype, name, ...) _BLL_fdec(rtype, name, uintptr_t PointerIndex, ##__VA_ARGS__)
     #define _BLL_fcallpi(name, ...) _BLL_fcall(name, uintptr_t PointerIndex, ##__VA_ARGS__)
@@ -43,6 +49,7 @@
   #undef _BLL_this
   #undef _BLL_fdec
   #undef _BLL_fcall
+  #undef _BLL_fdecnds
   #undef _BLL_fdecpi
   #undef _BLL_fcallpi
 #endif
