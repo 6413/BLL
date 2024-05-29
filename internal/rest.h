@@ -635,7 +635,7 @@ _BLL_fdec(void, NewTillUsage,
       if(*_P(gnrint)(&nr) == *_P(gnrint)(&_BLL_this->src)){
         return 1;
       }
-      if(*_P(gnrint)(&nr) == *_P(gnrint)(&_BLL_this->src)){
+      if(*_P(gnrint)(&nr) == *_P(gnrint)(&_BLL_this->dst)){
         return 1;
       }
       return 0;
