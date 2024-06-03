@@ -91,7 +91,14 @@ BLL_StructEnd(_P(Node_t))
     #endif
     return arr;
   }
-  static constexpr auto _P(_MultipleType_Sizes) = _P(MultipleType_MakeArray)(BLL_set_MultipleType_Sizes);
+  static constexpr auto _P(_MultipleType_Sizes) =
+    _P(MultipleType_MakeArray)(BLL_set_MultipleType_Sizes);
+#endif
+
+#if defined(BLL_set_BufferUpdateInfo)
+  static void _P(_BufferUpdateInfo)(_P(t) *bll, uintptr_t Old, uintptr_t New){
+    BLL_set_BufferUpdateInfo
+  }
 #endif
 
 #if BLL_set_StoreFormat == 0
@@ -105,6 +112,11 @@ BLL_StructEnd(_P(Node_t))
   #endif
   #if BLL_set_CPP_CopyAtPointerChange
     #define BVEC_set_HandleAllocate 0
+  #endif
+  #if defined(BLL_set_BufferUpdateInfo)
+    #define BVEC_set_PossibleUpdate \
+      _P(t) *bll = OFFSETLESS(bvec, _P(t), NodeList); \
+      _P(_BufferUpdateInfo)(bll, bvec->Possible, Possible);
   #endif
   #define BVEC_set_alloc_open BLL_set_alloc_open
   #define BVEC_set_alloc_resize BLL_set_alloc_resize
@@ -670,10 +682,6 @@ _BLL_fdec(void, NewTillUsage,
 #include "nrtra.h"
 
 #if BLL_set_CPP_CopyAtPointerChange
-  #if !defined(_BLL_HaveConstantNodeData)
-    #error those who trigger this, will burn in hell
-  #endif
-
   _BLL_fdec(void, AllocateNewBuffer,
     BLL_set_type_node Amount
   ){
@@ -681,7 +689,7 @@ _BLL_fdec(void, NewTillUsage,
     void *np = BLL_set_alloc_open(NodeList.Possible * sizeof(_P(Node_t)));
     __MemoryCopy(NodeList.ptr, np, NodeList.Current * sizeof(_P(Node_t)));
 
-    _P(nrtra_t) nrtra;
+    nrtra_t nrtra;
     nrtra.Open(_BLL_this);
     while(nrtra.Loop(_BLL_this) == true){
       new
@@ -698,7 +706,7 @@ _BLL_fdec(void, NewTillUsage,
 _BLL_fdec(void, _DestructAllNodes
 ){
   #if BLL_set_CPP_Node_ConstructDestruct
-    _P(nrtra_t) nrtra;
+    nrtra_t nrtra;
     nrtra.Open(_BLL_this);
     while(nrtra.Loop(_BLL_this) == true){
       _BLL_fcall(_Node_Destruct, nrtra.nr);
@@ -757,16 +765,32 @@ _BLL_fdec(void, _AfterInitNodes
 #endif
 _BLL_fdecnds(void, Open
 ){
-  BLL_set_NodeSizeType NodeSize = sizeof(_P(Node_t));
+  BLL_set_NodeSizeType NodeSize = 0;
+
+  #if BLL_set_Link
+    NodeSize += sizeof(_P(NodeReference_t)) * 2;
+  #endif
+
   #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
     NodeSize += NodeDataSize;
-    #if BLL_set_Link == 0
-      /* for NextRecycled */
-      #if BLL_set_Recycle
-        NodeSize += sizeof(_P(Node_t)) < sizeof(_P(NodeReference_t)) ? sizeof(_P(Node_t)) - sizeof(_P(NodeReference_t)) : 0;
-      #endif
-    #endif
+  #elif defined(BLL_set_MultipleType_Sizes)
+    #error implement this
+  #else
+    NodeSize += sizeof(_P(NodeData_t));
   #endif
+
+  if(NodeSize < sizeof(_P(NodeReference_t)) * BLL_set_Recycle){
+    NodeSize = sizeof(_P(NodeReference_t));
+  }
+
+  #if !BLL_set_Link && BLL_set_IsNodeRecycled
+    #error not implementable with current algorithm
+  #endif
+
+  if(NodeSize < sizeof(_P(NodeReference_t)) * 2 * BLL_set_IsNodeRecycled){
+    NodeSize = sizeof(_P(NodeReference_t)) * 2;
+  }
+
 
   #if __sanit
     *_P(gnrint)(&_BLL_this->e.c) = 0;

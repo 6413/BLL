@@ -1,4 +1,8 @@
-BLL_StructBegin(_P(nrtra_t))
+#if BLL_set_Language == 0
+  typedef struct{
+#elif BLL_set_Language == 1
+  struct nrtra_t{
+#endif
   _P(NodeReference_t) nr;
   #if BLL_set_Recycle == 0
   #elif BLL_set_IsNodeRecycled == 0
@@ -6,7 +10,7 @@ BLL_StructBegin(_P(nrtra_t))
   #endif
 
 #if BLL_set_Language == 0
-  BLL_StructEnd(_P(nrtra_t))
+  }_P(nrtra_t);
 #endif
 
   #if BLL_set_StoreFormat == 0
@@ -85,5 +89,5 @@ BLL_StructBegin(_P(nrtra_t))
   #undef _BLL_nrtra_count
 
 #if BLL_set_Language == 1
-  BLL_StructEnd(_P(nrtra_t))
+  };
 #endif

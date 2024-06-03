@@ -1,11 +1,11 @@
 #if BLL_set_IntegerNR == 0
   #if BLL_set_Language == 1
-    struct _P(t);
     struct _P(NodeReference_t);
     #if BLL_set_AreWeInsideStruct == 0
       static _P(NodeReference_t) _P(_NodeReference_Next)(_P(NodeReference_t) *, _P(t) *);
       static _P(NodeReference_t) _P(_NodeReference_Prev)(_P(NodeReference_t) *, _P(t) *);
       static _P(NodeReference_t) _P(gnric)();
+      static BLL_set_type_node *_P(gnrint)();
       static void _P(snric)(_P(NodeReference_t) *);
     #endif
   #endif
@@ -42,6 +42,11 @@
       /* check _BLL_POFTWBIT(inric) at rest.h for more info */
       bool iic() const {
         return *this == _P(gnric)();
+      }
+
+      /* get integer */
+      BLL_set_type_node &gint(){
+        return *_P(gnrint)(this);
       }
 
       #if BLL_set_Link == 1

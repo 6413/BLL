@@ -61,12 +61,19 @@
 
 /* ------------------------------------------------------------------------------------------ */
 
+#if defined(BLL_set_NodeData) && defined(BLL_set_NodeDataType)
+  #error BLL_set_NodeData and BLL_set_NodeDataType cant be defined same time.
+#endif
+
 #if BLL_set_LinkSentinel && BLL_set_Link == 0
   #error BLL_set_LinkSentinel 1 is not possible with BLL_set_Link 0
 #endif
 
 #if BLL_set_CPP_CopyAtPointerChange && BLL_set_StoreFormat == 1
   #error StoreFormat 1 doesn't change pointers.
+#endif
+#if BLL_set_CPP_CopyAtPointerChange && !defined(_BLL_HaveConstantNodeData)
+  #error what
 #endif
 
 #if BLL_set_SafeNext > 0 && !BLL_set_Link
@@ -76,6 +83,6 @@
   #error BLL_set_IsNodeRecycled requires BLL_set_Link 1
 #endif
 
-#if defined(BLL_set_NodeData) && defined(BLL_set_NodeDataType)
-  #error BLL_set_NodeData and BLL_set_NodeDataType cant be defined same time.
+#if defined(BLL_set_BufferUpdateInfo) && BLL_set_StoreFormat != 0
+  #error BufferUpdateInfo is only applicable to StoreFormat 0
 #endif

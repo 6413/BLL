@@ -72,7 +72,6 @@
 #ifndef BLL_set_NodeSizeType
   #define BLL_set_NodeSizeType uint32_t
 #endif
-
 #ifndef BLL_set_IsNodeRecycled
   #define BLL_set_IsNodeRecycled 0
 #endif
@@ -138,6 +137,10 @@
 #undef BLL_set_alloc_resize
 #undef BLL_set_alloc_open
 
+#ifdef BLL_set_BufferUpdateInfo
+  #undef BLL_set_BufferUpdateInfo
+#endif
+#undef BLL_set_IsNodeRecycled
 #undef BLL_set_NodeSizeType
 #undef BLL_set_type_node
 #undef BLL_set_StoreFormat
@@ -145,7 +148,6 @@
 #undef BLL_set_Link
 #undef BLL_set_ResizeListAfterClear
 #undef BLL_set_SafeNext
-#undef BLL_set_IsNodeRecycled
 #undef BLL_set_PadNode
 #undef BLL_set_Recycle
 #undef BLL_set_PreferNextFirst

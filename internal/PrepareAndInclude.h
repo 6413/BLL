@@ -1,8 +1,8 @@
-#include "CheckLogic.h"
-
 #if defined(BLL_set_NodeData) || defined(BLL_set_NodeDataType)
   #define _BLL_HaveConstantNodeData
 #endif
+
+#include "CheckLogic.h"
 
 #define _P(p0) CONCAT3(BLL_set_prefix, _, p0)
 
@@ -13,6 +13,8 @@
   #define BLL_StructBegin(n) struct n{
   #define BLL_StructEnd(n) };
 #endif
+
+struct _P(t);
 
 #if BLL_set_declare_NodeReference == 1
   #include "NodeReference.h"
@@ -31,14 +33,17 @@
   #endif
 
   #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
-    #define _BLL_fdecnds(rtype, name, ...) _BLL_fdec(rtype, name, BLL_set_NodeSizeType NodeDataSize, ##__VA_ARGS__)
+    #define _BLL_fdecnds(rtype, name, ...) \
+      _BLL_fdec(rtype, name, BLL_set_NodeSizeType NodeDataSize, ##__VA_ARGS__)
   #else
     #define _BLL_fdecnds _BLL_fdec
   #endif
 
   #if defined(BLL_set_MultipleType_Sizes)
-    #define _BLL_fdecpi(rtype, name, ...) _BLL_fdec(rtype, name, uintptr_t PointerIndex, ##__VA_ARGS__)
-    #define _BLL_fcallpi(name, ...) _BLL_fcall(name, uintptr_t PointerIndex, ##__VA_ARGS__)
+    #define _BLL_fdecpi(rtype, name, ...) \
+      _BLL_fdec(rtype, name, uintptr_t PointerIndex, ##__VA_ARGS__)
+    #define _BLL_fcallpi(name, ...) \
+      _BLL_fcall(name, uintptr_t PointerIndex, ##__VA_ARGS__)
   #else
     #define _BLL_fdecpi _BLL_fdec
     #define _BLL_fcallpi _BLL_fcall
@@ -49,7 +54,9 @@
   #undef _BLL_this
   #undef _BLL_fdec
   #undef _BLL_fcall
+
   #undef _BLL_fdecnds
+
   #undef _BLL_fdecpi
   #undef _BLL_fcallpi
 #endif
