@@ -5,7 +5,7 @@
       static _P(NodeReference_t) _P(_NodeReference_Next)(_P(NodeReference_t) *, _P(t) *);
       static _P(NodeReference_t) _P(_NodeReference_Prev)(_P(NodeReference_t) *, _P(t) *);
       static _P(NodeReference_t) _P(gnric)();
-      static BLL_set_type_node *_P(gnrint)();
+      static BLL_set_type_node *_P(gnrint)(_P(NodeReference_t) *);
       static void _P(snric)(_P(NodeReference_t) *);
     #endif
   #endif
