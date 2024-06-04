@@ -172,9 +172,6 @@ BLL_StructBegin(_P(t))
   #if BLL_set_StoreFormat == 1
     BLL_set_type_node NodeCurrent;
   #endif
-  #ifndef _BLL_HaveConstantNodeData
-    uint32_t NodeSize;
-  #endif
   #if BLL_set_LinkSentinel
     _P(NodeReference_t) src;
     _P(NodeReference_t) dst;
