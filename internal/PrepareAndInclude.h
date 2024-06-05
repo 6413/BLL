@@ -22,8 +22,8 @@ struct _P(t);
 #if BLL_set_declare_rest == 1
   #if BLL_set_Language == 0
     #define _BLL_this This
-    #define _BLL_fdec(rtype, name, ...) static rtype name(_P(t) *This, ##__VA_ARGS__)
-    #define _BLL_fcall(name, ...) name(This, ##__VA_ARGS__)
+    #define _BLL_fdec(rtype, name, ...) static rtype _P(name)(_P(t) *This, ##__VA_ARGS__)
+    #define _BLL_fcall(name, ...) _P(name)(This, ##__VA_ARGS__)
   #elif BLL_set_Language == 1
     #define _BLL_this this
     #define _BLL_fdec(rtype, name, ...) rtype name(__VA_ARGS__)
