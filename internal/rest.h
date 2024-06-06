@@ -360,12 +360,12 @@ _BLL_fdec(void, _Node_Destruct,
 
   #if BLL_set_IsNodeRecycled == 1
     /* get recycle value */
-    _BLL_fdec(_P(NodeReference_t), _grv,
+    _BLL_fdec(_P(NodeReference_t), _grv
     ){
       return _P(gnric)();
     }
     /* get non recycle value */
-    _BLL_fdec(_P(NodeReference_t), _gnrv,
+    _BLL_fdec(_P(NodeReference_t), _gnrv
     ){
       _P(NodeReference_t) nr;
       *_P(gnrint)(&nr) = (BLL_set_type_node)-2;
