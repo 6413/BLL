@@ -789,7 +789,7 @@ _BLL_fdecnds(void, Open
   }
 
 
-  #if __sanit
+  #if BLL_set_Recycle && __sanit
     *_P(gnrint)(&_BLL_this->e.c) = 0;
   #endif
 
