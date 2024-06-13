@@ -273,32 +273,53 @@ _BLL_fdecpi(_P(Node_t) *, GetNodeByReference,
   return _BLL_fcallpi(_GetNodeByReference, nr);
 }
 
-_BLL_fdecpi(_P(NodeData_t) *, GetNodeReferenceData,
-  _P(NodeReference_t) NodeReference
+_BLL_fdecpi(uintptr_t, _ndoffset
 ){
-  _P(Node_t) *Node = _BLL_fcallpi(GetNodeByReference, NodeReference);
   #if defined(BLL_set_MultipleType_Sizes)
     #if BLL_set_Link == 1
       if(PointerIndex == _P(_MultipleType_GetLinkIndex)()){
-        return (_P(NodeData_t) *)((uint8_t *)Node + sizeof(_P(Node_t)));
+        return sizeof(_P(Node_t));
       }
-      else{
-        return (_P(NodeData_t) *)Node;
-      }
+      return 0;
     #else
-      return (_P(NodeData_t) *)Node;
+      return 0;
     #endif
   #elif defined(_BLL_HaveConstantNodeData)
-    return (_P(NodeData_t) *)&Node->data;
+    return offsetof(_P(Node_t), data);
   #else
-    return (_P(NodeData_t) *)(
-      (uint8_t *)Node
-      #if BLL_set_Link == 1
-        + sizeof(_P(Node_t))
-      #endif
-    );
+    #if BLL_set_Link == 1
+      return sizeof(_P(Node_t));
+    #else
+      return 0;
+    #endif
   #endif
 }
+
+_BLL_fdecpi(_P(NodeData_t) *, GetNodeReferenceData,
+  _P(NodeReference_t) nr
+){
+  _P(Node_t) *n = _BLL_fcallpi(GetNodeByReference, nr);
+  return (_P(NodeData_t) *)((uint8_t *)n + _BLL_fcallpi(_ndoffset));
+}
+
+#if BLL_set_StoreFormat == 0
+  /* get id by pointer */
+  _BLL_fdecpi(_P(NodeReference_t), gidbp,
+    _P(NodeData_t) *nd
+  ){
+    /* TOOD debug idea
+      1 check if nd is before NodeList.ptr
+      2 check (n - NodeList.ptr) % ns
+    */
+    /* TOOD this should be inside BVEC. not here. */
+    uintptr_t n = (uintptr_t)nd - _BLL_fcallpi(_ndoffset);
+    n -= (uintptr_t)_BLL_this->NodeList.ptr;
+    BLL_set_type_node i = (n - (uintptr_t)_BLL_this->NodeList.ptr) / _BLL_fcallpi(GetNodeSize);
+    _P(NodeReference_t) r;
+    *_P(gnrint)(&r) = i;
+    return r;
+  }
+#endif
 
 _BLL_fdec(BLL_set_type_node, Usage
 ){
