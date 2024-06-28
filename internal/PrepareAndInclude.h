@@ -14,7 +14,10 @@
   #define BLL_StructEnd(n) };
 #endif
 
-struct _P(t);
+/* for NodeReference to use */
+#if BLL_set_Language == 1
+  struct _P(t);
+#endif
 
 #if BLL_set_declare_NodeReference == 1
   #include "NodeReference.h"
