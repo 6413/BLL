@@ -129,5 +129,16 @@ BLL is a linked list library with many build options.
 ### Depends On
 * https://github.com/7244/BVEC
 
+### Required By
+* https://github.com/6413/fan (inside various parts)
+* https://github.com/7244/BCOL
+* https://github.com/7244/cpbridge
+* https://github.com/7244/ecps
+* https://github.com/7244/goldsrc-netclient
+* https://github.com/7244/kykvpn
+* https://github.com/7244/shaper
+* https://github.com/7244/WED
+* https://github.com/7244/WITCH (inside various parts)
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
