@@ -944,11 +944,6 @@ _BLL_fdec(void, Clear
     }
   #endif
 
-  #if !BLL_set_Recycle && BLL_set_IntegerNR && !BLL_set_LinkSentinel
-    _P(NodeData_t) *begin() { return &operator[](0); }
-    _P(NodeData_t) *end() { return &operator[](Usage()); }
-  #endif
-
   #if BLL_set_CPP_ConstructDestruct
     _P(t)(
       #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
@@ -970,7 +965,25 @@ _BLL_fdec(void, Clear
   #ifdef BLL_set_Overload_Declare
     BLL_set_Overload_Declare
   #endif
+#endif
 
+#if !BLL_set_Recycle && BLL_set_IntegerNR && !BLL_set_LinkSentinel
+  #if BLL_set_Language == 1
+    _P(NodeData_t) *begin() { return &operator[](0); }
+    _P(NodeData_t) *end() { return &operator[](Usage()); }
+  #endif
+
+  _BLL_fdec(void, inc
+  ){
+    _BLL_fcall(NewNode);
+  }
+  _BLL_fdec(void, dec
+  ){
+    _BLL_fcall(_Node_Destruct, --_BLL_this->NodeList.Current);
+  }
+#endif
+
+#if BLL_set_Language == 1
   BLL_StructEnd(_P(t))
 
   #if BLL_set_Link == 1
