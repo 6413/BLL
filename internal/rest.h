@@ -716,6 +716,8 @@ _BLL_fdec(void, NewTillUsage,
     }
     nrtra.Close(_BLL_this);
 
+    _BLL_fcall(_DestructAllNodes);
+
     BLL_set_alloc_close(NodeList.ptr);
     _P(_NodeList_SetPointer)(&_BLL_this->NodeList, np);
   }
