@@ -559,6 +559,21 @@ _BLL_fdec(void, NewTillUsage,
     srcNode->PrevNodeReference = dstnr;
   }
 
+  /* set invalid constant previous link */
+  _BLL_fdec(void, sicpl,
+    _P(NodeReference_t) nr
+  ){
+    _P(Node_t) *n = _BLL_fcall(gln, nr);
+    n->PrevNodeReference = _P(gnric)();
+  }
+  /* set invalid constant next link */
+  _BLL_fdec(void, sicnl,
+    _P(NodeReference_t) nr
+  ){
+    _P(Node_t) *n = _BLL_fcall(gln, nr);
+    n->NextNodeReference = _P(gnric)();
+  }
+
   _BLL_fdec(void, Unlink,
     _P(NodeReference_t) nr
   ){
