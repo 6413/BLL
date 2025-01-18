@@ -81,13 +81,25 @@
 #endif
 
 #ifndef BLL_set_alloc_open
-  #define BLL_set_alloc_open malloc
+  #if defined(__generic_malloc)
+    #define BLL_set_alloc_open __generic_malloc
+  #else
+    #define BLL_set_alloc_open malloc
+  #endif
 #endif
 #ifndef BLL_set_alloc_resize
-  #define BLL_set_alloc_resize realloc
+  #if defined(__generic_realloc)
+    #define BLL_set_alloc_resize __generic_realloc
+  #else
+    #define BLL_set_alloc_resize realloc
+  #endif
 #endif
 #ifndef BLL_set_alloc_close
-  #define BLL_set_alloc_close free
+  #if defined(__generic_free)
+    #define BLL_set_alloc_close __generic_free
+  #else
+    #define BLL_set_alloc_close free
+  #endif
 #endif
 
 #ifndef BLL_set_StoreFormat1_ElementPerBlock
