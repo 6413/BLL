@@ -14,8 +14,6 @@
     #define BLL_set_Language 1
   #elif defined(__language_c) && !defined(__language_cpp)
     #define BLL_set_Language 0
-  #elif !defined(__language_c) && defined(__language_cpp)
-    #define BLL_set_Language 1
   #else
     #error BLL_set_Language needs to be set. 0 is C and 1 is C++
   #endif
