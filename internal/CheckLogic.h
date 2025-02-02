@@ -86,3 +86,7 @@
 #if defined(BLL_set_BufferUpdateInfo) && BLL_set_StoreFormat != 0
   #error BufferUpdateInfo is only applicable to StoreFormat 0
 #endif
+
+#if !BLL_set_PreferNextFirst && BLL_set_OnlyNextLink
+  #error PreferNextFirst doesnt make sense with BLL_set_OnlyNextLink
+#endif

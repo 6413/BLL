@@ -58,6 +58,9 @@
 #ifndef BLL_set_Link
   #define BLL_set_Link 1
 #endif
+#ifndef BLL_set_OnlyNextLink
+  #define BLL_set_OnlyNextLink 0
+#endif
 #ifndef BLL_set_LinkSentinel
   #if BLL_set_Link
     #define BLL_set_LinkSentinel 1
@@ -159,6 +162,7 @@
 #undef BLL_set_type_node
 #undef BLL_set_StoreFormat
 #undef BLL_set_LinkSentinel
+#undef BLL_set_OnlyNextLink
 #undef BLL_set_Link
 #undef BLL_set_ResizeListAfterClear
 #undef BLL_set_SafeNext

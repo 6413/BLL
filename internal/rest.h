@@ -34,9 +34,13 @@ BLL_StructBegin(_P(Node_t))
   #if BLL_set_Link == 1
     #if BLL_set_PreferNextFirst == 1
       _P(NodeReference_t) NextNodeReference;
-      _P(NodeReference_t) PrevNodeReference;
+      #if !BLL_set_OnlyNextLink
+        _P(NodeReference_t) PrevNodeReference;
+      #endif
     #else
-      _P(NodeReference_t) PrevNodeReference;
+      #if !BLL_set_OnlyNextLink
+        _P(NodeReference_t) PrevNodeReference;
+      #endif
       _P(NodeReference_t) NextNodeReference;
     #endif
   #endif
@@ -523,9 +527,13 @@ _BLL_fdec(void, NewTillUsage,
     _P(NodeReference_t) nnr = srcNode->NextNodeReference;
     _P(Node_t) *nextNode = _BLL_fcall(gln, nnr);
     srcNode->NextNodeReference = dstnr;
-    dstNode->PrevNodeReference = srcnr;
+    #if !BLL_set_OnlyNextLink
+      dstNode->PrevNodeReference = srcnr;
+    #endif
     dstNode->NextNodeReference = nnr;
-    nextNode->PrevNodeReference = dstnr;
+    #if !BLL_set_OnlyNextLink
+      nextNode->PrevNodeReference = dstnr;
+    #endif
   }
   _BLL_fdec(void, linkNextOfOrphan,
     _P(NodeReference_t) srcnr,
@@ -534,20 +542,26 @@ _BLL_fdec(void, NewTillUsage,
     _P(Node_t) *srcNode = _BLL_fcall(gln, srcnr);
     _P(Node_t) *dstNode = _BLL_fcall(_gln, dstnr);
     srcNode->NextNodeReference = dstnr;
-    dstNode->PrevNodeReference = srcnr;
+    #if !BLL_set_OnlyNextLink
+      dstNode->PrevNodeReference = srcnr;
+    #endif
   }
   _BLL_fdec(void, linkPrev,
     _P(NodeReference_t) srcnr,
     _P(NodeReference_t) dstnr
   ){
     _P(Node_t) *srcNode = _BLL_fcall(gln, srcnr);
-    _P(NodeReference_t) pnr = srcNode->PrevNodeReference;
-    _P(Node_t) *prevNode = _BLL_fcall(gln, pnr);
-    prevNode->NextNodeReference = dstnr;
+    #if !BLL_set_OnlyNextLink
+      _P(NodeReference_t) pnr = srcNode->PrevNodeReference;
+      _P(Node_t) *prevNode = _BLL_fcall(gln, pnr);
+      prevNode->NextNodeReference = dstnr;
+    #endif
     _P(Node_t) *dstNode = _BLL_fcall(_gln, dstnr);
-    dstNode->PrevNodeReference = pnr;
     dstNode->NextNodeReference = srcnr;
-    srcNode->PrevNodeReference = dstnr;
+    #if !BLL_set_OnlyNextLink
+      dstNode->PrevNodeReference = pnr;
+      srcNode->PrevNodeReference = dstnr;
+    #endif
   }
   _BLL_fdec(void, linkPrevOfOrphan,
     _P(NodeReference_t) srcnr,
@@ -556,16 +570,20 @@ _BLL_fdec(void, NewTillUsage,
     _P(Node_t) *srcNode = _BLL_fcall(gln, srcnr);
     _P(Node_t) *dstNode = _BLL_fcall(_gln, dstnr);
     dstNode->NextNodeReference = srcnr;
-    srcNode->PrevNodeReference = dstnr;
+    #if !BLL_set_OnlyNextLink
+      srcNode->PrevNodeReference = dstnr;
+    #endif
   }
 
-  /* set invalid constant previous link */
-  _BLL_fdec(void, sicpl,
-    _P(NodeReference_t) nr
-  ){
-    _P(Node_t) *n = _BLL_fcall(gln, nr);
-    n->PrevNodeReference = _P(gnric)();
-  }
+  #if !BLL_set_OnlyNextLink
+    /* set invalid constant previous link */
+    _BLL_fdec(void, sicpl,
+      _P(NodeReference_t) nr
+    ){
+      _P(Node_t) *n = _BLL_fcall(gln, nr);
+      n->PrevNodeReference = _P(gnric)();
+    }
+  #endif
   /* set invalid constant next link */
   _BLL_fdec(void, sicnl,
     _P(NodeReference_t) nr
@@ -591,10 +609,12 @@ _BLL_fdec(void, NewTillUsage,
       }
     #endif
 
-    _P(NodeReference_t) nnr = Node->NextNodeReference;
-    _P(NodeReference_t) pnr = Node->PrevNodeReference;
-    _BLL_fcall(gln, pnr)->NextNodeReference = nnr;
-    _BLL_fcall(gln, nnr)->PrevNodeReference = pnr;
+    #if !BLL_set_OnlyNextLink
+      _P(NodeReference_t) nnr = Node->NextNodeReference;
+      _BLL_fcall(gln, pnr)->NextNodeReference = nnr;
+      _P(NodeReference_t) pnr = Node->PrevNodeReference;
+      _BLL_fcall(gln, nnr)->PrevNodeReference = pnr;
+    #endif
   }
 
   /* unlink recycle */
