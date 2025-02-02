@@ -611,9 +611,9 @@ _BLL_fdec(void, NewTillUsage,
 
     #if !BLL_set_OnlyNextLink
       _P(NodeReference_t) nnr = Node->NextNodeReference;
-      _BLL_fcall(gln, pnr)->NextNodeReference = nnr;
       _P(NodeReference_t) pnr = Node->PrevNodeReference;
       _BLL_fcall(gln, nnr)->PrevNodeReference = pnr;
+      _BLL_fcall(gln, pnr)->NextNodeReference = nnr;
     #endif
   }
 
