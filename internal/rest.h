@@ -617,13 +617,15 @@ _BLL_fdec(void, NewTillUsage,
     #endif
   }
 
-  /* unlink recycle */
-  _BLL_fdec(void, unlrec,
-    _P(NodeReference_t) nr
-  ){
-    _BLL_fcall(Unlink, nr);
-    _BLL_fcall(Recycle, nr);
-  }
+  #if BLL_set_Recycle
+    /* unlink recycle */
+    _BLL_fdec(void, unlrec,
+      _P(NodeReference_t) nr
+    ){
+      _BLL_fcall(Unlink, nr);
+      _BLL_fcall(Recycle, nr);
+    }
+  #endif
 
   #if BLL_set_LinkSentinel
     _BLL_fdec(_P(NodeReference_t), GetNodeFirst
