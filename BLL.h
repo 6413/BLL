@@ -68,6 +68,12 @@
     #define BLL_set_LinkSentinel 0
   #endif
 #endif
+#ifndef BLL_set_MultiThread
+  #define BLL_set_MultiThread 0
+#endif
+#ifndef BLL_set_CountLockFail
+  #define BLL_set_CountLockFail 0
+#endif
 #ifndef BLL_set_StoreFormat
   #define BLL_set_StoreFormat 0
 #endif
@@ -161,6 +167,8 @@
 #undef BLL_set_NodeSizeType
 #undef BLL_set_type_node
 #undef BLL_set_StoreFormat
+#undef BLL_set_CountLockFail
+#undef BLL_set_MultiThread
 #undef BLL_set_LinkSentinel
 #undef BLL_set_OnlyNextLink
 #undef BLL_set_Link
