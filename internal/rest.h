@@ -352,7 +352,7 @@ _BLL_fdecpi(uintptr_t, _ndoffset
     return offsetof(_P(Node_t), data);
   #else
     #if BLL_set_Link == 1
-      return sizeof(_P(Node_t));
+      return sizeof(_P(NodeReference_t)) * (1 + !BLL_set_OnlyNextLink);
     #else
       return 0;
     #endif
@@ -367,6 +367,24 @@ _BLL_fdecpi(uintptr_t, _ndoffset
     return (_P(NodeData_t) *)((uint8_t *)n + _BLL_fcallpi(_ndoffset));
   }
 #endif
+
+_BLL_fdecpi(void, SetNodeData,
+  _P(NodeReference_t) node_id,
+  const _P(NodeData_t) *data
+){
+  psbll_Node_t *node = _BLL_fcall(AcquireNode, node_id);
+
+  _P(NodeData_t) *nd = (_P(NodeData_t) *)((uint8_t *)node + _BLL_fcallpi(_ndoffset));
+
+  #if defined(_BLL_HaveConstantNodeData)
+    *nd = *data;
+  #else
+    #error help. how to get nodesize in clean way?
+    __builtin_memcpy(nd, data, NODESIZE - _BLL_fcallpi(_ndoffset));
+  #endif
+
+  _BLL_fcall(ReleaseNode, node_id, node);
+}
 
 #if BLL_set_StoreFormat == 0
   /* get id by pointer */
