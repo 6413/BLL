@@ -144,11 +144,13 @@ BLL_StructEnd(_P(Node_t))
   #include <BVEC/BVEC.h>
 #endif
 
-#define BME_set_Prefix _P(_FastLock)
-#define BME_set_LockValue 1
-#define BME_set_Sleep 0
-#define BME_set_CountLockFail BLL_set_CountLockFail
-#include <BME/BME.h>
+#if BLL_set_MultiThread
+  #define BME_set_Prefix _P(_FastLock)
+  #define BME_set_LockValue 1
+  #define BME_set_Sleep 0
+  #define BME_set_CountLockFail BLL_set_CountLockFail
+  #include <BME/BME.h>
+#endif
 
 #if defined(BLL_set_MultipleType_Sizes)
   consteval
@@ -280,6 +282,15 @@ _BLL_fdec(bool, inri,
   #endif
 }
 
+/* will be used internally */
+#if !BLL_set_MultiThread
+  _BLL_fdecpi(__forceinline _P(Node_t) *, _GetNodeUnsafe,
+    _P(NodeReference_t) node_id
+  ){
+    return _BLL_fcallpi(GetNodeByReference, node_id);
+  }
+#endif
+
 _BLL_fdecpi(_P(Node_t) *, AcquireNode,
   _P(NodeReference_t) nr
 ){
@@ -299,7 +310,7 @@ _BLL_fdecpi(_P(Node_t) *, AcquireNode,
   #endif
 }
 
-_BLL_fdecpi(_P(Node_t) *, ReleaseNode,
+_BLL_fdecpi(void, ReleaseNode,
   _P(NodeReference_t) nr,
   _P(Node_t) *n
 ){
@@ -308,33 +319,6 @@ _BLL_fdecpi(_P(Node_t) *, ReleaseNode,
   #else
     __atomic_sub_fetch(&_BLL_this->AcquireCount, 1, __ATOMIC_SEQ_CST);
   #endif
-}
-
-_BLL_fdec(_P(NodeReference_t), _GetNodeAsID,
-  _P(NodeReference_t) node_id,
-  BLL_set_type_node index
-){
-  #if defined(BLL_set_MultipleType_Sizes)
-    _P(Node_t) *n = _BLL_fcall(AcquireNode, _P(_MultipleType_GetLinkIndex)(), node_id);
-  #else
-    _P(Node_t) *n = _BLL_fcall(AcquireNode, node_id);
-  #endif
-  _P(NodeReference_t) ret = ((_P(NodeReference_t) *)n)[index];
-  _BLL_fcall(ReleaseNode, node_id, n);
-  return ret;
-}
-_BLL_fdec(void, _SetNodeAsID,
-  _P(NodeReference_t) node_id,
-  BLL_set_type_node index,
-  _P(NodeReference_t) id
-){
-  #if defined(BLL_set_MultipleType_Sizes)
-    _P(Node_t) *n = _BLL_fcall(AcquireNode, _P(_MultipleType_GetLinkIndex)(), node_id);
-  #else
-    _P(Node_t) *n = _BLL_fcall(AcquireNode, node_id);
-  #endif
-  ((_P(NodeReference_t) *)n)[index] = id;
-  _BLL_fcall(ReleaseNode, node_id, n);
 }
 
 _BLL_fdecpi(uintptr_t, _ndoffset
@@ -372,15 +356,14 @@ _BLL_fdecpi(void, SetNodeData,
   _P(NodeReference_t) node_id,
   const _P(NodeData_t) *data
 ){
-  psbll_Node_t *node = _BLL_fcall(AcquireNode, node_id);
+  _P(Node_t) *node = _BLL_fcall(AcquireNode, node_id);
 
   _P(NodeData_t) *nd = (_P(NodeData_t) *)((uint8_t *)node + _BLL_fcallpi(_ndoffset));
 
   #if defined(_BLL_HaveConstantNodeData)
     *nd = *data;
   #else
-    #error help. how to get nodesize in clean way?
-    __builtin_memcpy(nd, data, NODESIZE - _BLL_fcallpi(_ndoffset));
+    __builtin_memcpy(nd, data, _BLL_fcall(GetNodeSize) - _BLL_fcallpi(_ndoffset));
   #endif
 
   _BLL_fcall(ReleaseNode, node_id, node);
@@ -461,10 +444,53 @@ _BLL_fdec(void, _Node_Destruct,
   #endif
 }
 
+_BLL_fdec(_P(Node_t) *, AcquireLinkNode,
+  _P(NodeReference_t) node_id
+){
+  #if defined(BLL_set_MultipleType_Sizes)
+    return _BLL_fcall(AcquireNode, _P(_MultipleType_GetLinkIndex)(), node_id);
+  #else
+    return _BLL_fcall(AcquireNode, node_id);
+  #endif
+}
+_BLL_fdec(void, ReleaseLinkNode,
+  _P(NodeReference_t) node_id,
+  _P(Node_t) *node
+){
+  #if defined(BLL_set_MultipleType_Sizes)
+    _BLL_fcall(ReleaseNode, _P(_MultipleType_GetLinkIndex)(), node_id, node);
+  #else
+    _BLL_fcall(ReleaseNode, node_id, node);
+  #endif
+}
+
+_BLL_fdec(_P(NodeReference_t), _GetNodeAsID,
+  _P(NodeReference_t) node_id,
+  BLL_set_type_node index
+){
+  _P(Node_t) *node = _BLL_fcall(AcquireLinkNode, node_id);
+
+  _P(NodeReference_t) ret = ((_P(NodeReference_t) *)node)[index];
+
+  _BLL_fcall(ReleaseLinkNode, node_id, node);
+
+  return ret;
+}
+_BLL_fdec(void, _SetNodeAsID,
+  _P(NodeReference_t) node_id,
+  BLL_set_type_node index,
+  _P(NodeReference_t) id
+){
+  _P(Node_t) *node = _BLL_fcall(AcquireLinkNode, node_id);
+
+  ((_P(NodeReference_t) *)node)[index] = id;
+
+  _BLL_fcall(ReleaseLinkNode, node_id, node);
+}
+
 #if BLL_set_Recycle
 
-  _BLL_fdec(BLL_set_type_node, _RecycleIndex,
-    _P(NodeReference_t) nr
+  _BLL_fdec(BLL_set_type_node, _RecycleIndex
   ){
     return 0;
   }
@@ -602,25 +628,6 @@ _BLL_fdec(void, NewTillUsage,
 }
 
 #if BLL_set_Link == 1
-  _BLL_fdec(_P(Node_t) *, AcquireLinkNode,
-    _P(NodeReference_t) node_id
-  ){
-    #if defined(BLL_set_MultipleType_Sizes)
-      return _BLL_fcall(AcquireNode, _P(_MultipleType_GetLinkIndex)(), node_id);
-    #else
-      return _BLL_fcall(AcquireNode, node_id);
-    #endif
-  }
-  _BLL_fdec(void, ReleaseLinkNode,
-    _P(NodeReference_t) node_id,
-    _P(Node_t) *node
-  ){
-    #if defined(BLL_set_MultipleType_Sizes)
-      _BLL_fcall(ReleaseNode, _P(_MultipleType_GetLinkIndex)(), node_id, node);
-    #else
-      _BLL_fcall(ReleaseNode, node_id, node);
-    #endif
-  }
 
   _BLL_fdec(void, linkNext,
     _P(NodeReference_t) srcnr,
@@ -700,7 +707,7 @@ _BLL_fdec(void, NewTillUsage,
     ){
       _P(Node_t) *node = _BLL_fcall(AcquireLinkNode, node_id);
       node->PrevNodeReference = _P(gnric)();
-      _BLL_fcall(ReleaseLinkNode, node_id, node)
+      _BLL_fcall(ReleaseLinkNode, node_id, node);
     }
   #endif
   /* set invalid constant next link */
@@ -714,26 +721,34 @@ _BLL_fdec(void, NewTillUsage,
 
   #if !BLL_set_OnlyNextLink
     _BLL_fdec(void, Unlink,
-      _P(NodeReference_t) nr
+      _P(NodeReference_t) node_id
     ){
-      _P(Node_t) *Node = _BLL_fcall(gln, nr);
+      _P(Node_t) *node = _BLL_fcall(AcquireLinkNode, node_id);
 
       #if BLL_set_SafeNext == 1
-        if(_BLL_this->SafeNext == nr){
-          _BLL_this->SafeNext = Node->PrevNodeReference;
+        if(_BLL_this->SafeNext == node_id){
+          _BLL_this->SafeNext = node->PrevNodeReference;
         }
       #elif BLL_set_SafeNext > 1
         for(uint8_t i = 0; i < _BLL_this->SafeNextCount; i++){
-          if(_BLL_this->SafeNext[i] == nr){
-            _BLL_this->SafeNext[i] = Node->PrevNodeReference;
+          if(_BLL_this->SafeNext[i] == node_id){
+            _BLL_this->SafeNext[i] = node->PrevNodeReference;
           }
         }
       #endif
 
-      _P(NodeReference_t) nnr = Node->NextNodeReference;
-      _P(NodeReference_t) pnr = Node->PrevNodeReference;
-      _BLL_fcall(gln, nnr)->PrevNodeReference = pnr;
-      _BLL_fcall(gln, pnr)->NextNodeReference = nnr;
+      _P(NodeReference_t) nnr = node->NextNodeReference;
+      _P(NodeReference_t) pnr = node->PrevNodeReference;
+
+      _BLL_fcall(ReleaseLinkNode, node_id, node);
+
+      _P(Node_t) *next_node = _BLL_fcall(AcquireLinkNode, nnr);
+      next_node->PrevNodeReference = pnr;
+      _BLL_fcall(ReleaseLinkNode, nnr, next_node);
+
+      _P(Node_t) *prev_node = _BLL_fcall(AcquireLinkNode, pnr);
+      prev_node->NextNodeReference = nnr;
+      _BLL_fcall(ReleaseLinkNode, pnr, prev_node);
     }
   #endif
 
@@ -750,70 +765,86 @@ _BLL_fdec(void, NewTillUsage,
   #if BLL_set_LinkSentinel
     _BLL_fdec(_P(NodeReference_t), GetNodeFirst
     ){
-      return _BLL_fcall(_gln, _BLL_this->src)->NextNodeReference;
+      #if BLL_set_MultiThread
+        #error other thread can change sentinel. solve it
+      #endif
+      _P(Node_t) *sentinel_node = _BLL_fcall(AcquireLinkNode, _BLL_this->src);
+      _P(NodeReference_t) ret = sentinel_node->NextNodeReference;
+      _BLL_fcall(ReleaseLinkNode, _BLL_this->src, sentinel_node);
+      return ret;
     }
     _BLL_fdec(_P(NodeReference_t), GetNodeLast
     ){
-      return _BLL_fcall(_gln, _BLL_this->dst)->PrevNodeReference;
+      #if BLL_set_MultiThread
+        #error other thread can change sentinel. solve it
+      #endif
+      _P(Node_t) *sentinel_node = _BLL_fcall(AcquireLinkNode, _BLL_this->dst);
+      _P(NodeReference_t) ret = sentinel_node->PrevNodeReference;
+      _BLL_fcall(ReleaseLinkNode, _BLL_this->dst, sentinel_node);
+      return ret;
     }
 
-    _BLL_fdec(_P(NodeReference_t), NewNodeFirst_empty
-    ){
-      _P(NodeReference_t) nr = _BLL_fcall(_NewNode_empty_NoConstruct);
-      _P(NodeReference_t) srcnr = _BLL_this->src;
-      _BLL_fcall(_gln, nr)->NextNodeReference = srcnr;
-      _BLL_fcall(_gln, srcnr)->PrevNodeReference = nr;
-      _BLL_this->src = nr;
-      _BLL_fcall(_Node_Construct, srcnr);
-      return srcnr;
-    }
-    _BLL_fdec(_P(NodeReference_t), NewNodeFirst_alloc
-    ){
-      _P(NodeReference_t) nr = _BLL_fcall(_NewNode_alloc_NoConstruct);
-      _P(NodeReference_t) srcnr = _BLL_this->src;
-      _BLL_fcall(_gln, nr)->NextNodeReference = srcnr;
-      _BLL_fcall(_gln, srcnr)->PrevNodeReference = nr;
-      _BLL_this->src = nr;
-      _BLL_fcall(_Node_Construct, srcnr);
-      return srcnr;
-    }
     _BLL_fdec(_P(NodeReference_t), NewNodeFirst
     ){
+      _P(NodeReference_t) new_node_id;
+
       if(_BLL_this->e.p){
-        return _BLL_fcall(NewNodeFirst_empty);
+        new_node_id = _BLL_fcall(_NewNode_empty_NoConstruct);
       }
       else{
-        return _BLL_fcall(NewNodeFirst_alloc);
+        new_node_id = _BLL_fcall(_NewNode_alloc_NoConstruct);
       }
-    }
-    _BLL_fdec(_P(NodeReference_t), NewNodeLast_empty
-    ){
-      _P(NodeReference_t) nr = _BLL_fcall(_NewNode_empty_NoConstruct);
-      _P(NodeReference_t) dstnr = _BLL_this->dst;
-      _BLL_fcall(_gln, nr)->PrevNodeReference = dstnr;
-      _BLL_fcall(_gln, dstnr)->NextNodeReference = nr;
-      _BLL_this->dst = nr;
-      _BLL_fcall(_Node_Construct, dstnr);
-      return dstnr;
-    }
-    _BLL_fdec(_P(NodeReference_t), NewNodeLast_alloc
-    ){
-      _P(NodeReference_t) nr = _BLL_fcall(_NewNode_alloc_NoConstruct);
-      _P(NodeReference_t) dstnr = _BLL_this->dst;
-      _BLL_fcall(_gln, nr)->PrevNodeReference = dstnr;
-      _BLL_fcall(_gln, dstnr)->NextNodeReference = nr;
-      _BLL_this->dst = nr;
-      _BLL_fcall(_Node_Construct, dstnr);
-      return dstnr;
+
+      #if BLL_set_MultiThread
+        #error other thread can change sentinel. solve it
+      #endif
+
+      _P(NodeReference_t) sentinel_node_id = _BLL_this->src;
+
+      _P(Node_t) *new_node = _BLL_fcall(AcquireLinkNode, new_node_id);
+      new_node->NextNodeReference = sentinel_node_id;
+      _BLL_fcall(ReleaseLinkNode, new_node_id, new_node);
+
+      _P(Node_t) *sentinel_node = _BLL_fcall(AcquireLinkNode, sentinel_node_id);
+      sentinel_node->PrevNodeReference = new_node_id;
+      _BLL_fcall(ReleaseLinkNode, sentinel_node_id, sentinel_node);
+
+      _BLL_this->src = new_node_id;
+
+      _BLL_fcall(_Node_Construct, sentinel_node_id);
+
+      return sentinel_node_id;
     }
     _BLL_fdec(_P(NodeReference_t), NewNodeLast
     ){
+      _P(NodeReference_t) new_node_id;
+
       if(_BLL_this->e.p){
-        return _BLL_fcall(NewNodeLast_empty);
+        new_node_id = _BLL_fcall(_NewNode_empty_NoConstruct);
       }
       else{
-        return _BLL_fcall(NewNodeLast_alloc);
+        new_node_id = _BLL_fcall(_NewNode_alloc_NoConstruct);
       }
+
+      #if BLL_set_MultiThread
+        #error other thread can change sentinel. solve it
+      #endif
+
+      _P(NodeReference_t) sentinel_node_id = _BLL_this->dst;
+
+      _P(Node_t) *new_node = _BLL_fcall(AcquireLinkNode, new_node_id);
+      new_node->PrevNodeReference = sentinel_node_id;
+      _BLL_fcall(ReleaseLinkNode, new_node_id, new_node);
+
+      _P(Node_t) *sentinel_node = _BLL_fcall(AcquireLinkNode, sentinel_node_id);
+      sentinel_node->NextNodeReference = new_node_id;
+      _BLL_fcall(ReleaseLinkNode, sentinel_node_id, sentinel_node);
+
+      _BLL_this->dst = new_node_id;
+
+      _BLL_fcall(_Node_Construct, sentinel_node_id);
+
+      return sentinel_node_id;
     }
 
     _BLL_fdec(bool, IsNRSentinel,
@@ -932,8 +963,8 @@ _BLL_fdec(void, _AfterInitNodes
   #endif
 
   #if BLL_set_LinkSentinel
-    _BLL_fcall(_gln, _BLL_this->src)->NextNodeReference = _BLL_this->dst;
-    _BLL_fcall(_gln, _BLL_this->dst)->PrevNodeReference = _BLL_this->src;
+    _BLL_fcallpi(_GetNodeUnsafe, _BLL_this->src)->NextNodeReference = _BLL_this->dst;
+    _BLL_fcallpi(_GetNodeUnsafe, _BLL_this->dst)->PrevNodeReference = _BLL_this->src;
   #endif
 }
 
@@ -1054,9 +1085,13 @@ _BLL_fdec(void, Clear
     _P(NodeReference_t) srcnr,
     _P(NodeReference_t) dstnr
   ){
+    _P(NodeReference_t) node_id = srcnr;
     do{
-      _P(Node_t) *srcNode = _BLL_fcall(gln, srcnr);
-      srcnr = srcNode->NextNodeReference;
+      _P(Node_t) *node = _BLL_fcallpi(AcquireNode, node_id);
+      _P(NodeReference_t) tmp_id = node->NextNodeReference;
+      _BLL_fcallpi(ReleaseNode, node_id, node);
+      node_id = tmp_id;
+
       if(_P(inre)(srcnr, dstnr)){
         return 0;
       }
@@ -1157,11 +1192,19 @@ _BLL_fdec(void, Clear
   BLL_StructEnd(_P(t))
 
   #if BLL_set_Link == 1
-    static _P(NodeReference_t) _P(_NodeReference_Next)(_P(NodeReference_t) *nr, _P(t) *list){
-      return list->gln(*nr)->NextNodeReference;
+    static _P(NodeReference_t) _P(_NodeReference_Next)(_P(NodeReference_t) *node_id, _P(t) *list){
+      _P(Node_t) *node = list->AcquireLinkNode(*node_id);
+      auto ret = node->NextNodeReference;
+      list->ReleaseLinkNode(*node_id, node);
+      return ret;
     }
-    static _P(NodeReference_t) _P(_NodeReference_Prev)(_P(NodeReference_t) *nr, _P(t) *list){
-      return list->gln(*nr)->PrevNodeReference;
-    }
+    #if !BLL_set_OnlyNextLink
+      static _P(NodeReference_t) _P(_NodeReference_Prev)(_P(NodeReference_t) *node_id, _P(t) *list){
+        _P(Node_t) *node = list->AcquireLinkNode(*node_id);
+        auto ret = node->PrevNodeReference;
+        list->ReleaseLinkNode(*node_id, node);
+        return ret;
+      }
+    #endif
   #endif
 #endif

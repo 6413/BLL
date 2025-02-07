@@ -41,7 +41,7 @@
       _P(NodeReference_t) cnr = bll->e.c;
       for(BLL_set_type_node i = bll->e.p; i != 0; --i){
         _BLL_nrtra_this->_RecycledArray[*_P(gnrint)(&cnr)] = 1;
-        cnr = *_BLL_nrtra_fcall(_grecnrofnr, cnr);
+        cnr = _BLL_nrtra_fcall(_GetNodeAsID, cnr, _BLL_nrtra_fcall(_RecycleIndex));
       }
     #endif
     *_P(gnrint)(&_BLL_nrtra_this->nr) = (BLL_set_type_node)-1;
