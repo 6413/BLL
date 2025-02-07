@@ -167,6 +167,9 @@
 #undef BLL_set_NodeSizeType
 #undef BLL_set_type_node
 #undef BLL_set_StoreFormat
+#ifdef BLL_set_CountLockFailGlobal
+  #undef BLL_set_CountLockFailGlobal
+#endif
 #undef BLL_set_CountLockFail
 #undef BLL_set_MultiThread
 #undef BLL_set_LinkSentinel

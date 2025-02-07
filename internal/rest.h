@@ -149,6 +149,9 @@ BLL_StructEnd(_P(Node_t))
   #define BME_set_LockValue 1
   #define BME_set_Sleep 0
   #define BME_set_CountLockFail BLL_set_CountLockFail
+  #ifdef BLL_set_CountLockFailGlobal
+    #define BME_set_CountLockFailGlobal BLL_set_CountLockFailGlobal
+  #endif
   #include <BME/BME.h>
 #endif
 
