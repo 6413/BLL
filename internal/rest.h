@@ -286,13 +286,15 @@ _BLL_fdec(bool, inri,
 }
 
 /* will be used internally */
-#if !BLL_set_MultiThread
-  _BLL_fdecpi(__forceinline _P(Node_t) *, _GetNodeUnsafe,
-    _P(NodeReference_t) node_id
-  ){
+_BLL_fdecpi(__forceinline _P(Node_t) *, _GetNodeUnsafe,
+  _P(NodeReference_t) node_id
+){
+  #if !BLL_set_MultiThread
     return _BLL_fcallpi(GetNodeByReference, node_id);
-  }
-#endif
+  #else
+    return _BLL_fcallpi(GetNodeUnsafe, node_id);
+  #endif
+}
 
 _BLL_fdecpi(_P(Node_t) *, AcquireNode,
   _P(NodeReference_t) nr
