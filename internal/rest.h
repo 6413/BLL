@@ -577,7 +577,8 @@ _BLL_fdec(_P(NodeReference_t), _NewNode_alloc_NoConstruct
     #if !BLL_set_MultiThread
       *_P(gnrint)(&r) = _BLL_this->NodeList.Current;
     #else
-      while(_P(_FastLock_Lock)(&_BLL_this->PointerChangerLock)){ /* TOOD RELAX */ }
+      while(_P(_FastLock_Lock)(&_BLL_this->PointerChangerLock)){ /* TOOD cpu relax */ }
+      while(__atomic_load_n(&_BLL_this->AcquireCount, __ATOMIC_SEQ_CST)){ /* TOOD cpu relax */ }
 
       *_P(gnrint)(&r) = _BLL_this->NodeList.Current;
     #endif
