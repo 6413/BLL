@@ -23,10 +23,12 @@
     #define _BLL_nrtra_this This
     #define _BLL_nrtra_fdec(rtype, name, ...) static rtype CONCAT2(_P(nrtra_),name)(_P(nrtra_t) *This, _P(t) *bll, ##__VA_ARGS__)
     #define _BLL_nrtra_fcall(name, ...) _P(name)(bll, ##__VA_ARGS__)
+    #define _BLL_nrtra_pcall(name, ...) _P(name)(bll, ##__VA_ARGS__)
   #elif BLL_set_Language == 1
     #define _BLL_nrtra_this this
     #define _BLL_nrtra_fdec(rtype, name, ...) rtype name(_P(t) *bll, ##__VA_ARGS__)
     #define _BLL_nrtra_fcall(name, ...) bll->name(__VA_ARGS__)
+    #define _BLL_nrtra_pcall(name, ...) bll->name(__VA_ARGS__)
   #else
     #error ?
   #endif
@@ -41,7 +43,7 @@
       _P(NodeReference_t) cnr = bll->e.c;
       for(BLL_set_type_node i = bll->e.p; i != 0; --i){
         _BLL_nrtra_this->_RecycledArray[*_P(gnrint)(&cnr)] = 1;
-        cnr = _BLL_nrtra_fcall(_GetNodeAsID, cnr, _BLL_nrtra_fcall(_RecycleIndex));
+        cnr = _BLL_nrtra_fcall(_GetNodeAsID, cnr, _BLL_nrtra_pcall(_RecycleIndex));
       }
     #endif
     *_P(gnrint)(&_BLL_nrtra_this->nr) = (BLL_set_type_node)-1;
@@ -85,6 +87,7 @@
   #undef _BLL_nrtra_this
   #undef _BLL_nrtra_fdec
   #undef _BLL_nrtra_fcall
+  #undef _BLL_nrtra_pcall
 
   #undef _BLL_nrtra_count
 
