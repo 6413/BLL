@@ -503,7 +503,7 @@ _BLL_fdec(void, _SetNodeAsID,
   #if BLL_set_IsNodeRecycled == 1
 
     _BLL_fdec(void, _MarkAsRecycled,
-      _P(NodeReference_t) nr
+      _P(NodeReference_t) node_id
     ){
       #if BLL_set_OnlyNextLink
         #error not implemented
@@ -534,10 +534,10 @@ _BLL_fdec(void, _SetNodeAsID,
   _BLL_fdec(void, _Recycle,
     _P(NodeReference_t) nr
   ){
-    _BLL_fcall(_SetNodeAsID, nr, _BLL_fcall(_RecycleIndex), _BLL_this->e.c);
+    _BLL_fcall(_SetNodeAsID, nr, _BLL_pcall(_RecycleIndex), _BLL_this->e.c);
 
     #if BLL_set_IsNodeRecycled == 1
-      *_BLL_fcall(_grvonr, &nr) = _BLL_fcall(_grv);
+      _BLL_fcall(_MarkAsRecycled, nr);
     #endif
     _BLL_this->e.c = nr;
     _BLL_this->e.p++;
@@ -565,7 +565,7 @@ _BLL_fdec(void, _SetNodeAsID,
     #endif
 
     _P(NodeReference_t) nr = _BLL_this->e.c;
-    _BLL_this->e.c = _BLL_fcall(_GetNodeAsID, nr, _BLL_fcall(_RecycleIndex));
+    _BLL_this->e.c = _BLL_fcall(_GetNodeAsID, nr, _BLL_pcall(_RecycleIndex));
     _BLL_this->e.p--;
     return nr;
   }
@@ -620,7 +620,7 @@ _BLL_fdec(_P(NodeReference_t), NewNode
 ){
   _P(NodeReference_t) nr = _BLL_fcall(_NewNode_NoConstruct);
   #if BLL_set_IsNodeRecycled == 1
-    *_BLL_fcall(_grvonr, &nr) = _BLL_fcall(_gnrv);
+    _BLL_fcall(_MarkAsNonRecycled, nr);
   #endif
   _BLL_fcall(_Node_Construct, nr);
   return nr;
