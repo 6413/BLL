@@ -75,6 +75,10 @@ BLL_StructEnd(_P(Node_t))
   #error make bcontainer support this
 #endif
 #define bcontainer_set_MultiThread BLL_set_MultiThread
+#define bcontainer_set_CountLockFail BLL_set_CountLockFail
+#if defined(BLL_set_CountLockFailGlobal)
+  #define bcontainer_set_CountLockFailGlobal BLL_set_CountLockFailGlobal
+#endif
 #include <bcontainer/bcontainer.h>
 
 #if BLL_set_MultiThread
