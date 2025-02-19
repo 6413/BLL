@@ -254,16 +254,9 @@ _BLL_fdec(bool, inri,
   #endif
 }
 
-#if BLL_set_MultiThread
-  _BLL_fdecpi(_P(Node_t) *, GetNodeUnsafe,
-    _P(NodeReference_t) nr
-  )
-#else
-  _BLL_fdecpi(_P(Node_t) *, GetNodeByReference,
-    _P(NodeReference_t) nr
-  )
-#endif
-{
+_BLL_fdecpi(_P(Node_t) *, GetNodeUnsafe,
+  _P(NodeReference_t) nr
+){
   #if BLL_set_StoreFormat == 0
     return (_P(Node_t) *)_P(_NodeList_GetNode)(
       &_BLL_this->NodeList,
@@ -285,16 +278,13 @@ _BLL_fdec(bool, inri,
   #endif
 }
 
-/* will be used internally */
-_BLL_fdecpi(__forceinline _P(Node_t) *, _GetNodeUnsafe,
-  _P(NodeReference_t) node_id
-){
-  #if !BLL_set_MultiThread
-    return _BLL_fcallpi(GetNodeByReference, node_id);
-  #else
+#if !BLL_set_MultiThread
+  _BLL_fdecpi(__forceinline _P(Node_t) *, GetNodeByReference,
+    _P(NodeReference_t) node_id
+  ){
     return _BLL_fcallpi(GetNodeUnsafe, node_id);
-  #endif
-}
+  }
+#endif
 
 _BLL_fdecpi(_P(Node_t) *, AcquireNode,
   _P(NodeReference_t) nr
@@ -969,8 +959,8 @@ _BLL_fdec(void, _AfterInitNodes
   #endif
 
   #if BLL_set_LinkSentinel
-    _BLL_fcallpi(_GetNodeUnsafe, _BLL_this->src)->NextNodeReference = _BLL_this->dst;
-    _BLL_fcallpi(_GetNodeUnsafe, _BLL_this->dst)->PrevNodeReference = _BLL_this->src;
+    _BLL_fcallpi(GetNodeUnsafe, _BLL_this->src)->NextNodeReference = _BLL_this->dst;
+    _BLL_fcallpi(GetNodeUnsafe, _BLL_this->dst)->PrevNodeReference = _BLL_this->src;
   #endif
 }
 
