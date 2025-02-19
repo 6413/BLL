@@ -65,10 +65,6 @@ BLL is a linked list library with many build options.
     // Possible values are 0 and 1. Default is 1.
     // Enables sentinel nodes.
 
-    BLL_set_StoreFormat
-    // Possible values are 0 and 1. Default is 0.
-    // Indicates storing format of nodes. 0 is able to change pointers of nodes 1 is not.
-
     BLL_set_type_node
     // Possible value is integer type. Default is uint32_t
     // Type of node id. How many node you can store is 2 ^ (sizeof(t) * 8)
@@ -79,14 +75,6 @@ BLL is a linked list library with many build options.
     BLL_set_IsNodeRecycled
     // Possible values are 0 and 1. Default is 0.
     // Enables feature to check if node is recycled or not.
-
-    BLL_set_alloc_open // Default is malloc
-    BLL_set_alloc_resize // Default is realloc
-    BLL_set_alloc_close // Default is free
-
-    BLL_set_StoreFormat1_ElementPerBlock
-    // Possible value is >= 0. Default is 1.
-    // Indicates how many node a block will store in StoreFormat1
 
     BLL_set_CPP_nrsic
     // Possible values are 0 and 1. Default is 0.
@@ -100,10 +88,6 @@ BLL is a linked list library with many build options.
     // Possible values are 0 and 1. Default is 0.
     // Calls .Open and .Close at constructor and destructor.
 
-    BLL_set_CPP_CopyAtPointerChange
-    // Possible values are 0 and 1. Default is 0.
-    // Copies nodes to new buffer instead of silently resizing it.
-
     BLL_set_NodeReference_Overload_Declare
     // Expanded inside NodeReference
 
@@ -114,13 +98,6 @@ BLL is a linked list library with many build options.
     // Expanded inside NodeData_t
     BLL_set_NodeDataType
     // If set, NodeData_t typedefs itself to it
-
-    // Multiple type means how many different node pointers BLL will store.
-    // This is made for sending bll nodes to opengl.
-    BLL_set_MultipleType_LinkIndex
-    // >= 0, which type will store index
-    BLL_set_MultipleType_Sizes
-    // type size in array
 
     BLL_set_BufferUpdateInfo
     // Expanded at BLL buffer change.

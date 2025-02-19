@@ -1,19 +1,3 @@
-/* too much overenginer here */
-#if BLL_set_StoreFormat == 1
-  /* TODO can be more smaller */
-  typedef BLL_set_type_node _P(BlockIndex_t);
-
-  #if BLL_set_StoreFormat1_ElementPerBlock <= 0xff
-    typedef uint8_t _P(BlockModulo_t);
-  #elif BLL_set_StoreFormat1_ElementPerBlock <= 0xffff
-    typedef uint16_t _P(BlockModulo_t);
-  #elif BLL_set_StoreFormat1_ElementPerBlock <= 0xffffffff
-    typedef uint32_t _P(BlockModulo_t);
-  #else
-    #error no
-  #endif
-#endif
-
 #if BLL_set_PadNode == 0
   #pragma pack(push, 1)
 #endif
@@ -69,80 +53,25 @@ BLL_StructEnd(_P(Node_t))
   #pragma pack(pop)
 #endif
 
-#if defined(BLL_set_MultipleType_Sizes)
-  #if BLL_set_OnlyNextLink
-    #error there are some (* 2) thingies. check it.
-  #endif
-  static constexpr auto _P(MultipleType_MakeArray)(auto... x) {
-    std::array<std::tuple_element_t<0, std::tuple<decltype(x)...>>, sizeof...(x)> arr = {
-      x...
-    };
-    #if BLL_set_Link == 1
-    arr[BLL_set_MultipleType_LinkIndex] += sizeof(_P(NodeReference_t)) * 2;
-    /*
-    uintptr_t NeededSize = sizeof(_P(NodeReference_t)) * 2;
-    bool found = false;
-    for(uintptr_t i = 0; i < arr.size(); i++){
-      if(arr[i] >= NeededSize){
-        found = true;
-      }
-    }
-    if(found == false){
-      uintptr_t BestDiff = -1;
-      uintptr_t BestIndex;
-      for(uintptr_t i = 0; i < arr.size(); i++){
-        if(NeededSize - arr[i])
-      }
-    }
-    */
-    #endif
-    return arr;
-  }
-  static constexpr auto _P(_MultipleType_Sizes) =
-    _P(MultipleType_MakeArray)(BLL_set_MultipleType_Sizes);
-#endif
-
 #if defined(BLL_set_BufferUpdateInfo)
   static void _P(_BufferUpdateInfo)(_P(t) *bll, uintptr_t Old, uintptr_t New){
     BLL_set_BufferUpdateInfo
   }
 #endif
 
-#if BLL_set_StoreFormat == 0
-  #define BVEC_set_prefix _P(_NodeList)
-  #define BVEC_set_NodeType BLL_set_type_node
-  #if defined(BLL_set_MultipleType_Sizes)
-    #define BVEC_set_MultipleType
-    #define BVEC_set_MultipleType_SizeArray _P(_MultipleType_Sizes)
-  #elif defined(_BLL_HaveConstantNodeData)
-    #define BVEC_set_NodeData _P(Node_t)
-  #endif
-  #if BLL_set_CPP_CopyAtPointerChange
-    #define BVEC_set_HandleAllocate 0
-  #endif
-  #if defined(BLL_set_BufferUpdateInfo)
-    #define BVEC_set_PossibleUpdate \
-      _P(t) *bll = OFFSETLESS(bvec, _P(t), NodeList); \
-      _P(_BufferUpdateInfo)(bll, bvec->Possible, Possible);
-  #endif
-  #define BVEC_set_alloc_open BLL_set_alloc_open
-  #define BVEC_set_alloc_resize BLL_set_alloc_resize
-  #define BVEC_set_alloc_close BLL_set_alloc_close
-  #include <BVEC/BVEC.h>
-#elif BLL_set_StoreFormat == 1
-  #ifndef _BLL_HaveConstantNodeData
-    #error not yet
-  #endif
-  #if defined(BLL_set_MultipleType_Sizes)
-    #error not yet
-  #endif
-  #define BVEC_set_prefix _P(_BlockList)
-  #define BVEC_set_NodeType BLL_set_type_node
-  #define BVEC_set_NodeData _P(Node_t) *
-  #define BVEC_set_alloc_open BLL_set_alloc_open
-  #define BVEC_set_alloc_close BLL_set_alloc_close
-  #include <BVEC/BVEC.h>
+#define bcontainer_set_Prefix _P(_NodeList)
+#define bcontainer_set_NodeType BLL_set_type_node
+#if defined(_BLL_HaveConstantNodeData)
+  #define bcontainer_set_NodeData _P(Node_t)
 #endif
+#if defined(BLL_set_BufferUpdateInfo)
+  #error make bcontainer support this
+  #define bcontainer_set_PossibleUpdate \
+    _P(t) *bll = OFFSETLESS(This, _P(t), NodeList); \
+    _P(_BufferUpdateInfo)(bll, This->Possible, Possible);
+#endif
+#define bcontainer_set_MultiThread BLL_set_MultiThread
+#include <bcontainer/bcontainer.h>
 
 #if BLL_set_MultiThread
   #define BME_set_Prefix _P(_FastLock)
@@ -155,61 +84,19 @@ BLL_StructEnd(_P(Node_t))
   #include <BME/BME.h>
 #endif
 
-#if defined(BLL_set_MultipleType_Sizes)
-  consteval
-  static
-  uintptr_t
-  _P(_MultipleType_GetLinkIndex)(
-  ){
-    #if defined(BLL_set_MultipleType_LinkIndex)
-      return BLL_set_MultipleType_LinkIndex;
-    #else
-      uintptr_t BestSize = -1;
-      uintptr_t BestIndex;
-      for(
-        uintptr_t i = 0;
-        i < sizeof(_P(_MultipleType_Sizes)) / sizeof(_P(_MultipleType_Sizes)[0]);
-        i++
-      ){
-        if(_P(_MultipleType_Sizes)[i] < BestSize){
-          BestSize = _P(_MultipleType_Sizes)[i];
-          BestIndex = i;
-        }
-      }
-      return BestIndex;
-    #endif
-  }
-#endif
-
 BLL_StructBegin(_P(t))
-  #if BLL_set_StoreFormat == 0
-    _P(_NodeList_t) NodeList;
-  #elif BLL_set_StoreFormat == 1
-    _P(_BlockList_t) BlockList;
-  #endif
-  #if BLL_set_StoreFormat == 1
-    BLL_set_type_node NodeCurrent;
-  #endif
+  _P(_NodeList_t) NodeList;
+
   #if BLL_set_LinkSentinel
     _P(NodeReference_t) src;
     _P(NodeReference_t) dst;
   #endif
-  #if BLL_set_Recycle
-    struct{
-      _P(NodeReference_t) c;
-      BLL_set_type_node p;
-    }e;
-  #endif
+
   #if BLL_set_SafeNext == 1
     _P(NodeReference_t) SafeNext;
   #elif BLL_set_SafeNext > 1
     uint8_t SafeNextCount;
     _P(NodeReference_t) SafeNext[BLL_set_SafeNext];
-  #endif
-
-  #if BLL_set_MultiThread
-    _P(_FastLock_t) PointerChangerLock;
-    uint16_t AcquireCount;
   #endif
 
 #if BLL_set_Language == 0
@@ -228,106 +115,49 @@ BLL_StructBegin(_P(t))
   }
 #endif
 
-_BLL_fdecpi(BLL_set_NodeSizeType, GetNodeSize
+_BLL_fdec(BLL_set_NodeSizeType, GetNodeSize
 ){
-  /* TODO */
-  /* this function doesnt check store format */
-  /* can give compile error in future */
-
-  #if defined(BLL_set_MultipleType_Sizes)
-    return _P(_NodeList_GetNodeSize)(&_BLL_this->NodeList, PointerIndex);
-  #elif defined(_BLL_HaveConstantNodeData)
-    return sizeof(_P(Node_t));
-  #else
-    return _P(_NodeList_GetNodeSize)(&_BLL_this->NodeList);
-  #endif
+  return _P(_NodeList_GetNodeSize)(&_BLL_this->NodeList);
 }
 
 /* is node reference invalid */
-_BLL_fdec(bool, inri,
+_BLL_fdec(bool, _plsimplement_inri,
   _P(NodeReference_t) nr
 ){
-  #if BLL_set_StoreFormat == 0
-    return *_P(gnrint)(&nr) >= _BLL_this->NodeList.Current;
-  #elif BLL_set_StoreFormat == 1
-    return *_P(gnrint)(&nr) >= _BLL_this->NodeCurrent;
-  #endif
+  return false;
 }
 
-_BLL_fdecpi(_P(Node_t) *, GetNodeUnsafe,
+_BLL_fdec(_P(Node_t) *, GetNodeUnsafe,
   _P(NodeReference_t) nr
 ){
-  #if BLL_set_StoreFormat == 0
-    return (_P(Node_t) *)_P(_NodeList_GetNode)(
-      &_BLL_this->NodeList,
-      *_P(gnrint)(&nr)
-      #if defined(BLL_set_MultipleType_Sizes)
-        , PointerIndex
-      #endif
-    );
-  #elif BLL_set_StoreFormat == 1
-    #if defined(_BLL_HaveConstantNodeData)
-      _P(BlockIndex_t) bi = *_P(gnrint)(&nr) / BLL_set_StoreFormat1_ElementPerBlock;
-      _P(BlockModulo_t) bm = *_P(gnrint)(&nr) % BLL_set_StoreFormat1_ElementPerBlock;
-      /* TODO this looks like mess check it */
-      _P(Node_t) *n = &((_P(Node_t) *)((void **)&_BLL_this->BlockList.ptr[0])[bi])[bm];
-      return n;
-    #else
-      #error not implemented yet
-    #endif
-  #endif
+  return (_P(Node_t) *)_P(_NodeList_GetNode)(&_BLL_this->NodeList, *_P(gnrint)(&nr));
 }
 
 #if !BLL_set_MultiThread
-  _BLL_fdecpi(__forceinline _P(Node_t) *, GetNodeByReference,
+  /* backward compatibility */
+  _BLL_fdec(__forceinline _P(Node_t) *, GetNodeByReference,
     _P(NodeReference_t) node_id
   ){
-    return _BLL_fcallpi(GetNodeUnsafe, node_id);
+    return _BLL_fcall(GetNodeUnsafe, node_id);
   }
 #endif
 
-_BLL_fdecpi(_P(Node_t) *, AcquireNode,
+_BLL_fdec(_P(Node_t) *, AcquireNode,
   _P(NodeReference_t) nr
 ){
-  #if !BLL_set_MultiThread
-    return _BLL_fcallpi(GetNodeByReference, nr);
-  #else
-    while(1){
-      __atomic_add_fetch(&_BLL_this->AcquireCount, 1, __ATOMIC_SEQ_CST);
-      if(!_P(_FastLock_Peek)(&_BLL_this->PointerChangerLock)){
-        break;
-      }
-      __atomic_sub_fetch(&_BLL_this->AcquireCount, 1, __ATOMIC_SEQ_CST);
-      while(_P(_FastLock_Peek)(&_BLL_this->PointerChangerLock));
-    }
-
-    return _BLL_fcallpi(GetNodeUnsafe, nr);
-  #endif
+  return _BLL_fcall(GetNodeUnsafe, nr);
 }
 
-_BLL_fdecpi(void, ReleaseNode,
+_BLL_fdec(void, ReleaseNode,
   _P(NodeReference_t) nr,
   _P(Node_t) *n
 ){
-  #if !BLL_set_MultiThread
-    /* ~mazurek~ */
-  #else
-    __atomic_sub_fetch(&_BLL_this->AcquireCount, 1, __ATOMIC_SEQ_CST);
-  #endif
+  /* ~mazurek~ */
 }
 
-_BLL_fdecpi(uintptr_t, _ndoffset
+_BLL_fdec(uintptr_t, _ndoffset
 ){
-  #if defined(BLL_set_MultipleType_Sizes)
-    #if BLL_set_Link == 1
-      if(PointerIndex == _P(_MultipleType_GetLinkIndex)()){
-        return sizeof(_P(Node_t));
-      }
-      return 0;
-    #else
-      return 0;
-    #endif
-  #elif defined(_BLL_HaveConstantNodeData)
+  #if defined(_BLL_HaveConstantNodeData)
     return offsetof(_P(Node_t), data);
   #else
     #if BLL_set_Link == 1
@@ -339,124 +169,71 @@ _BLL_fdecpi(uintptr_t, _ndoffset
 }
 
 #if !BLL_set_MultiThread
-  _BLL_fdecpi(_P(NodeData_t) *, GetNodeDataPointer,
+  _BLL_fdec(_P(NodeData_t) *, GetNodeDataPointer,
     _P(NodeReference_t) node_id
   ){
-    _P(Node_t) *n = _BLL_fcallpi(GetNodeByReference, node_id);
-    return (_P(NodeData_t) *)((uint8_t *)n + _BLL_fcallpi(_ndoffset));
+    _P(Node_t) *n = _BLL_fcall(GetNodeByReference, node_id);
+    return (_P(NodeData_t) *)((uint8_t *)n + _BLL_fcall(_ndoffset));
   }
 #endif
 
-_BLL_fdecpi(void, SetNodeData,
+_BLL_fdec(void, SetNodeData,
   _P(NodeReference_t) node_id,
   const _P(NodeData_t) *data
 ){
   _P(Node_t) *node = _BLL_fcall(AcquireNode, node_id);
 
-  _P(NodeData_t) *nd = (_P(NodeData_t) *)((uint8_t *)node + _BLL_fcallpi(_ndoffset));
+  _P(NodeData_t) *nd = (_P(NodeData_t) *)((uint8_t *)node + _BLL_fcall(_ndoffset));
 
   #if defined(_BLL_HaveConstantNodeData)
     *nd = *data;
   #else
-    __builtin_memcpy(nd, data, _BLL_fcall(GetNodeSize) - _BLL_fcallpi(_ndoffset));
+    __builtin_memcpy(nd, data, _BLL_fcall(GetNodeSize) - _BLL_fcall(_ndoffset));
   #endif
 
   _BLL_fcall(ReleaseNode, node_id, node);
 }
 
-#if BLL_set_StoreFormat == 0
-  /* get id by pointer */
-  _BLL_fdecpi(_P(NodeReference_t), gidbp,
-    _P(NodeData_t) *nd
-  ){
-    /* TOOD debug idea
-      1 check if nd is before NodeList.ptr
-      2 check (n - NodeList.ptr) % ns
-    */
-    /* TOOD this should be inside BVEC. not here. */
-    uintptr_t n = (uintptr_t)nd - _BLL_fcallpi(_ndoffset);
-    n -= (uintptr_t)_BLL_this->NodeList.ptr;
-    BLL_set_type_node i = (n - (uintptr_t)_BLL_this->NodeList.ptr) / _BLL_fcallpi(GetNodeSize);
-    _P(NodeReference_t) r;
-    *_P(gnrint)(&r) = i;
-    return r;
-  }
-#endif
-
 _BLL_fdec(BLL_set_type_node, Usage
 ){
-  return
-  #if BLL_set_StoreFormat == 0
-    _BLL_this->NodeList.Current
-  #elif BLL_set_StoreFormat == 1
-    _BLL_this->NodeCurrent
-  #endif
-  #if BLL_set_Recycle
-    - _BLL_this->e.p
-  #endif
-  #if BLL_set_LinkSentinel
-    - 2
-  #endif
+  return _P(_NodeList_Usage)(&_BLL_this->NodeList)
+    #if BLL_set_LinkSentinel
+      - 2
+    #endif
   ;
 }
-
-#if BLL_set_StoreFormat == 1
-  _BLL_fdec(void, _PushNewBlock
-  ){
-    _P(Node_t) *n = (_P(Node_t) *)BLL_set_alloc_open(
-      sizeof(_P(Node_t)) * BLL_set_StoreFormat1_ElementPerBlock
-    );
-    _P(_BlockList_Add)(&_BLL_this->BlockList, &n);
-  }
-#endif
 
 _BLL_fdec(void, _Node_Construct,
   _P(NodeReference_t) nr
 ){
   #if BLL_set_CPP_Node_ConstructDestruct
-    #if defined(BLL_set_MultipleType_LinkIndex)
-      #error implement this
-    #else
-      #if BLL_set_MultiThread
-        #error enjoy implementing
-      #endif
-      new (_BLL_fcall(GetNodeDataPointer, nr)) _P(NodeData_t);
+    #if BLL_set_MultiThread
+      #error enjoy implementing
     #endif
+    new (_BLL_fcall(GetNodeDataPointer, nr)) _P(NodeData_t);
   #endif
 }
 _BLL_fdec(void, _Node_Destruct,
   _P(NodeReference_t) nr
 ){
   #if BLL_set_CPP_Node_ConstructDestruct
-    #if defined(BLL_set_MultipleType_LinkIndex)
-      #error implement this
-    #else
-      #if BLL_set_MultiThread
-        #error enjoy implementing
-      #endif
-      _BLL_fcall(GetNodeDataPointer, nr)->~_P(NodeData_t)();
+    #if BLL_set_MultiThread
+      #error enjoy implementing
     #endif
+    _BLL_fcall(GetNodeDataPointer, nr)->~_P(NodeData_t)();
   #endif
 }
 
 _BLL_fdec(_P(Node_t) *, AcquireLinkNode,
   _P(NodeReference_t) node_id
 ){
-  #if defined(BLL_set_MultipleType_Sizes)
-    return _BLL_fcall(AcquireNode, _P(_MultipleType_GetLinkIndex)(), node_id);
-  #else
-    return _BLL_fcall(AcquireNode, node_id);
-  #endif
+  return _BLL_fcall(AcquireNode, node_id);
 }
 _BLL_fdec(void, ReleaseLinkNode,
   _P(NodeReference_t) node_id,
   _P(Node_t) *node
 ){
-  #if defined(BLL_set_MultipleType_Sizes)
-    _BLL_fcall(ReleaseNode, _P(_MultipleType_GetLinkIndex)(), node_id, node);
-  #else
-    _BLL_fcall(ReleaseNode, node_id, node);
-  #endif
+  _BLL_fcall(ReleaseNode, node_id, node);
 }
 
 _BLL_fdec(_P(NodeReference_t), _GetNodeAsID,
@@ -547,64 +324,9 @@ _BLL_fdec(void, _SetNodeAsID,
   }
 #endif
 
-#if BLL_set_Recycle
-  _BLL_fdec(_P(NodeReference_t), _NewNode_empty_NoConstruct
-  ){
-    #if BLL_set_MultiThread
-      #error not implemented
-    #endif
-
-    _P(NodeReference_t) nr = _BLL_this->e.c;
-    _BLL_this->e.c = _BLL_fcall(_GetNodeAsID, nr, _BLL_pcall(_RecycleIndex));
-    _BLL_this->e.p--;
-    return nr;
-  }
-#endif
-_BLL_fdec(_P(NodeReference_t), _NewNode_alloc_NoConstruct
-){
-  _P(NodeReference_t) r;
-  #if BLL_set_StoreFormat == 0
-    #if !BLL_set_MultiThread
-      *_P(gnrint)(&r) = _BLL_this->NodeList.Current;
-    #else
-      while(_P(_FastLock_Lock)(&_BLL_this->PointerChangerLock)){ /* TOOD cpu relax */ }
-      while(__atomic_load_n(&_BLL_this->AcquireCount, __ATOMIC_SEQ_CST)){ /* TOOD cpu relax */ }
-
-      *_P(gnrint)(&r) = _BLL_this->NodeList.Current;
-    #endif
-
-    #if BLL_set_CPP_CopyAtPointerChange
-      if(NodeList.Current == NodeList.Possible){
-        AllocateNewBuffer(NodeList.Current + 1);
-      }
-    #endif
-
-    _P(_NodeList_AddEmpty)(&_BLL_this->NodeList, 1);
-
-    #if BLL_set_MultiThread
-      _P(_FastLock_Unlock)(&_BLL_this->PointerChangerLock);
-    #endif
-
-  #elif BLL_set_StoreFormat == 1
-    #if BLL_set_MultiThread
-      #error not implemented
-    #endif
-
-    if(_BLL_this->NodeCurrent % BLL_set_StoreFormat1_ElementPerBlock == 0){
-      _BLL_fcall(_PushNewBlock);
-    }
-    *_P(gnrint)(&r) = _BLL_this->NodeCurrent++;
-  #endif
-  return r;
-}
 _BLL_fdec(_P(NodeReference_t), _NewNode_NoConstruct
 ){
-  #if BLL_set_Recycle
-    if(_BLL_this->e.p){
-      return _BLL_fcall(_NewNode_empty_NoConstruct);
-    }
-  #endif
-  return _BLL_fcall(_NewNode_alloc_NoConstruct);
+  return _P(_NodeList_NewNode)(&_BLL_this->NodeList);
 }
 _BLL_fdec(_P(NodeReference_t), NewNode
 ){
@@ -782,14 +504,7 @@ _BLL_fdec(void, NewTillUsage,
 
     _BLL_fdec(_P(NodeReference_t), NewNodeFirst
     ){
-      _P(NodeReference_t) new_node_id;
-
-      if(_BLL_this->e.p){
-        new_node_id = _BLL_fcall(_NewNode_empty_NoConstruct);
-      }
-      else{
-        new_node_id = _BLL_fcall(_NewNode_alloc_NoConstruct);
-      }
+      _P(NodeReference_t) new_node_id = _BLL_fcall(_NewNode_NoConstruct);
 
       #if BLL_set_MultiThread
         #error other thread can change sentinel. solve it
@@ -813,14 +528,7 @@ _BLL_fdec(void, NewTillUsage,
     }
     _BLL_fdec(_P(NodeReference_t), NewNodeLast
     ){
-      _P(NodeReference_t) new_node_id;
-
-      if(_BLL_this->e.p){
-        new_node_id = _BLL_fcall(_NewNode_empty_NoConstruct);
-      }
-      else{
-        new_node_id = _BLL_fcall(_NewNode_alloc_NoConstruct);
-      }
+      _P(NodeReference_t) new_node_id = _BLL_fcall(_NewNode_NoConstruct);
 
       #if BLL_set_MultiThread
         #error other thread can change sentinel. solve it
@@ -883,30 +591,6 @@ _BLL_fdec(void, NewTillUsage,
 
 #include "nrtra.h"
 
-#if BLL_set_CPP_CopyAtPointerChange
-  _BLL_fdec(void, AllocateNewBuffer,
-    BLL_set_type_node Amount
-  ){
-    _P(_NodeList_SetPossibleWith)(&NodeList, Amount);
-    void *np = BLL_set_alloc_open(NodeList.Possible * sizeof(_P(Node_t)));
-    __MemoryCopy(NodeList.ptr, np, NodeList.Current * sizeof(_P(Node_t)));
-
-    nrtra_t nrtra;
-    nrtra.Open(_BLL_this);
-    while(nrtra.Loop(_BLL_this) == true){
-      new
-        (&((_P(Node_t) *)np)[*_P(gnrint)(&nrtra.nr)].data)
-        _P(NodeData_t)(((_P(Node_t) *)NodeList.ptr)[*_P(gnrint)(&nrtra.nr)].data);
-    }
-    nrtra.Close(_BLL_this);
-
-    _BLL_fcall(_DestructAllNodes);
-
-    BLL_set_alloc_close(NodeList.ptr);
-    _P(_NodeList_SetPointer)(&_BLL_this->NodeList, np);
-  }
-#endif
-
 _BLL_fdec(void, _DestructAllNodes
 ){
   #if BLL_set_CPP_Node_ConstructDestruct
@@ -919,48 +603,18 @@ _BLL_fdec(void, _DestructAllNodes
   #endif
 }
 
-#if BLL_set_StoreFormat == 1
-  _BLL_fdec(void, _StoreFormat1_CloseAllocatedBlocks
-  ){
-    _P(BlockIndex_t) BlockAmount = _BLL_this->BlockList.Current;
-    for(_P(BlockIndex_t) i = 0; i < BlockAmount; i++){
-      /* TODO looks ugly cast */
-      void *p = (void *)((_P(Node_t) **)&_BLL_this->BlockList.ptr[0])[i];
-      BLL_set_alloc_close(p);
-    }
-  }
-#endif
-
 _BLL_fdec(void, _AfterInitNodes
 ){
   #if BLL_set_Recycle
     _BLL_this->e.p = 0;
   #endif
 
-  #if BLL_set_StoreFormat == 0
-    #if BLL_set_LinkSentinel
-      #if BLL_set_CPP_CopyAtPointerChange
-        /* TOOD better do this at Open */
-        if(NodeList.Possible < 2){
-          _BLL_fcall(AllocateNewBuffer, 2);
-        }
-      #endif
-
-      _P(_NodeList_AddEmpty)(&_BLL_this->NodeList, 2);
-
-      *_P(gnrint)(&_BLL_this->src) = 0;
-      *_P(gnrint)(&_BLL_this->dst) = 1;
-    #endif
-  #elif BLL_set_StoreFormat == 1
-    #if BLL_set_LinkSentinel
-      _BLL_this->src = _BLL_fcall(_NewNode_NoConstruct);
-      _BLL_this->dst = _BLL_fcall(_NewNode_NoConstruct);
-    #endif
-  #endif
-
   #if BLL_set_LinkSentinel
-    _BLL_fcallpi(GetNodeUnsafe, _BLL_this->src)->NextNodeReference = _BLL_this->dst;
-    _BLL_fcallpi(GetNodeUnsafe, _BLL_this->dst)->PrevNodeReference = _BLL_this->src;
+    _BLL_this->src = _BLL_fcall(_NewNode_NoConstruct);
+    _BLL_this->dst = _BLL_fcall(_NewNode_NoConstruct);
+
+    _BLL_fcall(GetNodeUnsafe, _BLL_this->src)->NextNodeReference = _BLL_this->dst;
+    _BLL_fcall(GetNodeUnsafe, _BLL_this->dst)->PrevNodeReference = _BLL_this->src;
   #endif
 }
 
@@ -979,10 +633,8 @@ _BLL_fdecnds(void, Open
     #endif
   #endif
 
-  #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
+  #if !defined(_BLL_HaveConstantNodeData)
     NodeSize += NodeDataSize;
-  #elif defined(BLL_set_MultipleType_Sizes)
-    #error implement this
   #else
     NodeSize += sizeof(_P(NodeData_t));
   #endif
@@ -1004,17 +656,11 @@ _BLL_fdecnds(void, Open
     *_P(gnrint)(&_BLL_this->e.c) = 0;
   #endif
 
-  #if BLL_set_StoreFormat == 0
-    #if defined(_BLL_HaveConstantNodeData) || defined(BLL_set_MultipleType_Sizes)
-      _P(_NodeList_Open)(&_BLL_this->NodeList);
-    #else
-      _P(_NodeList_Open)(&_BLL_this->NodeList, NodeSize);
-    #endif
-  #elif BLL_set_StoreFormat == 1
-    _BLL_this->NodeCurrent = 0;
-    _P(_BlockList_Open)(&_BLL_this->BlockList);
+  #if defined(_BLL_HaveConstantNodeData)
+    _P(_NodeList_Open)(&_BLL_this->NodeList);
+  #else
+    _P(_NodeList_Open)(&_BLL_this->NodeList, NodeSize);
   #endif
-  _BLL_fcall(_AfterInitNodes);
 
   #if BLL_set_SafeNext == 1
     _P(snric)(&_BLL_this->SafeNext); /* TOOD but why we set it initially? */
@@ -1022,56 +668,21 @@ _BLL_fdecnds(void, Open
     _BLL_this->SafeNextCount = 0;
   #endif
 
-  #if BLL_set_MultiThread
-    _P(_FastLock_Init)(&_BLL_this->PointerChangerLock);
-    _BLL_this->AcquireCount = 0;
-  #endif
+  _BLL_fcall(_AfterInitNodes);
 }
 _BLL_fdec(void, Close
 ){
   _BLL_fcall(_DestructAllNodes);
-  #if BLL_set_StoreFormat == 0
-    #if BLL_set_CPP_CopyAtPointerChange
-      BLL_set_alloc_close(NodeList.ptr);
-    #endif
-    _P(_NodeList_Close)(&_BLL_this->NodeList);
-  #elif BLL_set_StoreFormat == 1
-    _BLL_fcall(_StoreFormat1_CloseAllocatedBlocks);
-    _P(_BlockList_Close)(&_BLL_this->BlockList);
-  #endif
+  _P(_NodeList_Close)(&_BLL_this->NodeList);
 }
 #if BLL_set_CPP_ConstructDestruct
   public:
 #endif
 
-/* TOOD those 2 numbers in this function needs to be flexible */
 _BLL_fdec(void, Clear
 ){
   _BLL_fcall(_DestructAllNodes);
-  #if BLL_set_ResizeListAfterClear == 0
-    #if BLL_set_StoreFormat == 0
-      _BLL_this->NodeList.Current = 0;
-    #elif BLL_set_StoreFormat == 1
-      _BLL_fcall(_StoreFormat1_CloseAllocatedBlocks);
-      _BLL_this->BlockList.Current = 0;
-      _BLL_this->NodeCurrent = 0;
-    #endif
-  #else
-    #if BLL_set_StoreFormat == 0
-      _BLL_this->NodeList.Current = 0;
-      #if BLL_set_CPP_CopyAtPointerChange
-        /* TODO */
-        __abort();
-      #else
-        _P(_NodeList_Reserve)(&_BLL_this->NodeList, 2);
-      #endif
-    #elif BLL_set_StoreFormat == 1
-      _BLL_fcall(_StoreFormat1_CloseAllocatedBlocks);
-      _P(_BlockList_ClearWithBuffer)(&_BLL_this->BlockList);
-      _BLL_this->NodeCurrent = 0;
-    #endif
-  #endif
-
+  _P(_NodeList_Clear)(&_BLL_this->NodeList);
   _BLL_fcall(_AfterInitNodes);
 }
 
@@ -1083,9 +694,9 @@ _BLL_fdec(void, Clear
   ){
     _P(NodeReference_t) node_id = srcnr;
     do{
-      _P(Node_t) *node = _BLL_fcallpi(AcquireNode, node_id);
+      _P(Node_t) *node = _BLL_fcall(AcquireNode, node_id);
       _P(NodeReference_t) tmp_id = node->NextNodeReference;
-      _BLL_fcallpi(ReleaseNode, node_id, node);
+      _BLL_fcall(ReleaseNode, node_id, node);
       node_id = tmp_id;
 
       if(_P(inre)(srcnr, dstnr)){
@@ -1132,9 +743,7 @@ _BLL_fdec(void, Clear
 
 #if BLL_set_Language == 1
   #if !BLL_set_MultiThread
-    #if defined(BLL_set_MultipleType_Sizes)
-      /* what syntax you would like */
-    #elif defined(_BLL_HaveConstantNodeData)
+    #if defined(_BLL_HaveConstantNodeData)
       _P(NodeData_t) &operator[](_P(NodeReference_t) NR){
         return *GetNodeDataPointer(NR);
       }
@@ -1147,12 +756,12 @@ _BLL_fdec(void, Clear
 
   #if BLL_set_CPP_ConstructDestruct
     _P(t)(
-      #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
+      #if !defined(_BLL_HaveConstantNodeData)
         BLL_set_NodeSizeType NodeDataSize
       #endif
     ){
       Open(
-        #if !defined(_BLL_HaveConstantNodeData) && !defined(BLL_set_MultipleType_Sizes)
+        #if !defined(_BLL_HaveConstantNodeData)
           NodeDataSize
         #endif
       );

@@ -13,11 +13,7 @@
   }_P(nrtra_t);
 #endif
 
-  #if BLL_set_StoreFormat == 0
-    #define _BLL_nrtra_count bll->NodeList.Current
-  #elif BLL_set_StoreFormat == 1
-    #define _BLL_nrtra_count bll->NodeCurrent
-  #endif
+  #define _BLL_nrtra_count _P(_NodeList_Usage)(&bll->NodeList)
 
   #if BLL_set_Language == 0
     #define _BLL_nrtra_this This

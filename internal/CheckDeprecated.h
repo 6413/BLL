@@ -61,3 +61,32 @@
 #ifdef BLL_set_NoSentinel
   #error deprecated setting BLL_set_NoSentinel. now its BLL_set_LinkSentinel 1 or 0.
 #endif
+
+#ifdef BLL_set_alloc_open
+  #error outdated setting. now its handled by bcontainer.
+#endif
+#ifdef BLL_set_alloc_resize
+  #error outdated setting. now its handled by bcontainer.
+#endif
+#ifdef BLL_set_alloc_close
+  #error outdated setting. now its handled by bcontainer.
+#endif
+
+#ifdef BLL_set_StoreFormat
+  #error outdated setting. now its handled by bcontainer.
+#endif
+
+#ifdef BLL_set_StoreFormat1_ElementPerBlock
+  #error outdated setting. now its handled by bcontainer.
+#endif
+
+#ifdef BLL_set_MultipleType_Sizes
+  #error will be implemented later
+#endif
+#ifdef BLL_set_MultipleType_LinkIndex
+  #error will be implemented later
+#endif
+
+#ifdef BLL_set_CPP_CopyAtPointerChange
+  #error will be implemented later
+#endif

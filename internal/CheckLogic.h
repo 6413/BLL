@@ -37,14 +37,8 @@
 #if BLL_set_LinkSentinel < 0 || BLL_set_LinkSentinel > 1
   #error invalid BLL_set_LinkSentinel
 #endif
-#if BLL_set_StoreFormat < 0 || BLL_set_StoreFormat > 1
-  #error invalid BLL_set_StoreFormat
-#endif
 #if BLL_set_IsNodeRecycled < 0 || BLL_set_IsNodeRecycled > 1
   #error invalid BLL_set_IsNodeRecycled
-#endif
-#if BLL_set_StoreFormat1_ElementPerBlock < 0
-  #error invalid BLL_set_StoreFormat1_ElementPerBlock
 #endif
 #if BLL_set_CPP_nrsic < 0 || BLL_set_CPP_nrsic > 1
   #error invalid BLL_set_CPP_nrsic
@@ -54,9 +48,6 @@
 #endif
 #if BLL_set_CPP_ConstructDestruct < 0 || BLL_set_CPP_ConstructDestruct > 1
   #error invalid BLL_set_CPP_ConstructDestruct
-#endif
-#if BLL_set_CPP_CopyAtPointerChange < 0 || BLL_set_CPP_CopyAtPointerChange > 1
-  #error invalid BLL_set_CPP_CopyAtPointerChange
 #endif
 
 /* ------------------------------------------------------------------------------------------ */
@@ -69,22 +60,11 @@
   #error BLL_set_LinkSentinel 1 is not possible with BLL_set_Link 0
 #endif
 
-#if BLL_set_CPP_CopyAtPointerChange && BLL_set_StoreFormat == 1
-  #error StoreFormat 1 doesn't change pointers.
-#endif
-#if BLL_set_CPP_CopyAtPointerChange && !defined(_BLL_HaveConstantNodeData)
-  #error what
-#endif
-
 #if BLL_set_SafeNext > 0 && !BLL_set_Link
   #error SafeNext is not possible when there is no linking.
 #endif
 #if BLL_set_IsNodeRecycled && !BLL_set_Link
   #error BLL_set_IsNodeRecycled requires BLL_set_Link 1
-#endif
-
-#if defined(BLL_set_BufferUpdateInfo) && BLL_set_StoreFormat != 0
-  #error BufferUpdateInfo is only applicable to StoreFormat 0
 #endif
 
 #if !BLL_set_PreferNextFirst && BLL_set_OnlyNextLink

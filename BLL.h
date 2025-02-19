@@ -74,9 +74,6 @@
 #ifndef BLL_set_CountLockFail
   #define BLL_set_CountLockFail 0
 #endif
-#ifndef BLL_set_StoreFormat
-  #define BLL_set_StoreFormat 0
-#endif
 #ifndef BLL_set_type_node
   #define BLL_set_type_node uint32_t
 #endif
@@ -87,32 +84,6 @@
   #define BLL_set_IsNodeRecycled 0
 #endif
 
-#ifndef BLL_set_alloc_open
-  #if defined(__generic_malloc)
-    #define BLL_set_alloc_open __generic_malloc
-  #else
-    #define BLL_set_alloc_open malloc
-  #endif
-#endif
-#ifndef BLL_set_alloc_resize
-  #if defined(__generic_realloc)
-    #define BLL_set_alloc_resize __generic_realloc
-  #else
-    #define BLL_set_alloc_resize realloc
-  #endif
-#endif
-#ifndef BLL_set_alloc_close
-  #if defined(__generic_free)
-    #define BLL_set_alloc_close __generic_free
-  #else
-    #define BLL_set_alloc_close free
-  #endif
-#endif
-
-#ifndef BLL_set_StoreFormat1_ElementPerBlock
-  #define BLL_set_StoreFormat1_ElementPerBlock 1
-#endif
-
 #ifndef BLL_set_CPP_nrsic
   #define BLL_set_CPP_nrsic 0
 #endif
@@ -121,9 +92,6 @@
 #endif
 #ifndef BLL_set_CPP_ConstructDestruct
   #define BLL_set_CPP_ConstructDestruct 0
-#endif
-#ifndef BLL_set_CPP_CopyAtPointerChange
-  #define BLL_set_CPP_CopyAtPointerChange 0
 #endif
 
 #include "internal/PrepareAndInclude.h"
@@ -142,23 +110,9 @@
   #undef BLL_set_NodeDataType
 #endif
 
-#ifdef BLL_set_MultipleType_LinkIndex
-  #undef BLL_set_MultipleType_LinkIndex
-#endif
-#ifdef BLL_set_MultipleType_Sizes
-  #undef BLL_set_MultipleType_Sizes
-#endif
-
-#undef BLL_set_CPP_CopyAtPointerChange
 #undef BLL_set_CPP_ConstructDestruct
 #undef BLL_set_CPP_Node_ConstructDestruct
 #undef BLL_set_CPP_nrsic
-
-#undef BLL_set_StoreFormat1_ElementPerBlock
-
-#undef BLL_set_alloc_close
-#undef BLL_set_alloc_resize
-#undef BLL_set_alloc_open
 
 #ifdef BLL_set_BufferUpdateInfo
   #undef BLL_set_BufferUpdateInfo
@@ -166,7 +120,6 @@
 #undef BLL_set_IsNodeRecycled
 #undef BLL_set_NodeSizeType
 #undef BLL_set_type_node
-#undef BLL_set_StoreFormat
 #ifdef BLL_set_CountLockFailGlobal
   #undef BLL_set_CountLockFailGlobal
 #endif
