@@ -70,6 +70,10 @@ BLL_StructEnd(_P(Node_t))
     _P(t) *bll = OFFSETLESS(This, _P(t), NodeList); \
     _P(_BufferUpdateInfo)(bll, This->Possible, Possible);
 #endif
+#define bcontainer_set_Recycle BLL_set_Recycle
+#if BLL_set_IsNodeRecycled
+  #error make bcontainer support this
+#endif
 #define bcontainer_set_MultiThread BLL_set_MultiThread
 #include <bcontainer/bcontainer.h>
 
@@ -261,66 +265,17 @@ _BLL_fdec(void, _SetNodeAsID,
 }
 
 #if BLL_set_Recycle
-
-  _BLL_fdec(BLL_set_type_node, _RecycleIndex
-  ){
-    return 0;
-  }
-
-  #if BLL_set_IsNodeRecycled == 1
-
-    _BLL_fdec(void, _MarkAsRecycled,
-      _P(NodeReference_t) node_id
-    ){
-      #if BLL_set_OnlyNextLink
-        #error not implemented
-      #endif
-      _BLL_fcall(_SetNodeAsID, node_id, 1, _P(gnric)());
-    }
-    _BLL_fdec(void, _MarkAsNonRecycled,
-      _P(NodeReference_t) node_id
-    ){
-      #if BLL_set_OnlyNextLink
-        #error not implemented
-      #endif
-      _P(NodeReference_t) id;
-      *_P(gnrint)(&id) = (BLL_set_type_node)-2;
-      _BLL_fcall(_SetNodeAsID, node_id, 1, id);
-    }
-
-    _BLL_fdec(bool, IsNodeReferenceRecycled,
-      _P(NodeReference_t) node_id
-    ){
-      #if BLL_set_OnlyNextLink
-        #error not implemented
-      #endif
-      return _P(inre)(_BLL_fcall(_GetNodeAsID, node_id, 1), _P(gnric)());
-    }
-  #endif
-
-  _BLL_fdec(void, _Recycle,
+  _BLL_fdec(void, Recycle_NoDestruct,
     _P(NodeReference_t) nr
   ){
-    _BLL_fcall(_SetNodeAsID, nr, _BLL_pcall(_RecycleIndex), _BLL_this->e.c);
-
-    #if BLL_set_IsNodeRecycled == 1
-      _BLL_fcall(_MarkAsRecycled, nr);
-    #endif
-    _BLL_this->e.c = nr;
-    _BLL_this->e.p++;
+    _P(_NodeList_Recycle)(&_BLL_this->NodeList, *_P(gnrint)(&nr));
   }
 
   _BLL_fdec(void, Recycle,
     _P(NodeReference_t) nr
   ){
     _BLL_fcall(_Node_Destruct, nr);
-    _BLL_fcall(_Recycle, nr);
-  }
-
-  _BLL_fdec(void, Recycle_NoDestruct,
-    _P(NodeReference_t) nr
-  ){
-    _BLL_fcall(_Recycle, nr);
+    _BLL_fcall(Recycle_NoDestruct, nr);
   }
 #endif
 
@@ -331,18 +286,8 @@ _BLL_fdec(_P(NodeReference_t), _NewNode_NoConstruct
 _BLL_fdec(_P(NodeReference_t), NewNode
 ){
   _P(NodeReference_t) nr = _BLL_fcall(_NewNode_NoConstruct);
-  #if BLL_set_IsNodeRecycled == 1
-    _BLL_fcall(_MarkAsNonRecycled, nr);
-  #endif
   _BLL_fcall(_Node_Construct, nr);
   return nr;
-}
-_BLL_fdec(void, NewTillUsage,
-  BLL_set_type_node Amount
-){
-  while(_BLL_fcall(Usage) < Amount){
-    _BLL_fcall(NewNode);
-  }
 }
 
 #if BLL_set_Link == 1
@@ -605,10 +550,6 @@ _BLL_fdec(void, _DestructAllNodes
 
 _BLL_fdec(void, _AfterInitNodes
 ){
-  #if BLL_set_Recycle
-    _BLL_this->e.p = 0;
-  #endif
-
   #if BLL_set_LinkSentinel
     _BLL_this->src = _BLL_fcall(_NewNode_NoConstruct);
     _BLL_this->dst = _BLL_fcall(_NewNode_NoConstruct);
@@ -637,23 +578,6 @@ _BLL_fdecnds(void, Open
     NodeSize += NodeDataSize;
   #else
     NodeSize += sizeof(_P(NodeData_t));
-  #endif
-
-  if(NodeSize < sizeof(_P(NodeReference_t)) * BLL_set_Recycle){
-    NodeSize = sizeof(_P(NodeReference_t));
-  }
-
-  #if !BLL_set_Link && BLL_set_IsNodeRecycled
-    #error not implementable with current algorithm
-  #endif
-
-  if(NodeSize < sizeof(_P(NodeReference_t)) * 2 * BLL_set_IsNodeRecycled){
-    NodeSize = sizeof(_P(NodeReference_t)) * 2;
-  }
-
-
-  #if BLL_set_Recycle && __sanit
-    *_P(gnrint)(&_BLL_this->e.c) = 0;
   #endif
 
   #if defined(_BLL_HaveConstantNodeData)
