@@ -34,7 +34,7 @@
     #if BLL_set_Recycle == 0
     #elif BLL_set_IsNodeRecycled == 0
       uintptr_t size = _BLL_nrtra_count * sizeof(uint8_t);
-      _BLL_nrtra_this->_RecycledArray = (uint8_t *)BLL_set_alloc_open(size);
+      _BLL_nrtra_this->_RecycledArray = (uint8_t *)__generic_malloc(size);
       __MemorySet(0, _BLL_nrtra_this->_RecycledArray, size);
       _P(NodeReference_t) cnr = bll->e.c;
       for(BLL_set_type_node i = bll->e.p; i != 0; --i){
@@ -48,7 +48,7 @@
   ){
     #if BLL_set_Recycle == 0
     #elif BLL_set_IsNodeRecycled == 0
-      BLL_set_alloc_close(_BLL_nrtra_this->_RecycledArray);
+      __generic_free(_BLL_nrtra_this->_RecycledArray);
     #endif
   }
 

@@ -83,6 +83,9 @@
 #ifndef BLL_set_IsNodeRecycled
   #define BLL_set_IsNodeRecycled 0
 #endif
+#ifndef BLL_set_Clear
+  #define BLL_set_Clear 0
+#endif
 
 #ifndef BLL_set_CPP_nrsic
   #define BLL_set_CPP_nrsic 0
@@ -92,6 +95,14 @@
 #endif
 #ifndef BLL_set_CPP_ConstructDestruct
   #define BLL_set_CPP_ConstructDestruct 0
+#endif
+
+#ifndef BLL_set_nrtra
+  #if BLL_set_CPP_Node_ConstructDestruct
+    #define BLL_set_nrtra 1
+  #else
+    #define BLL_set_nrtra 0
+  #endif
 #endif
 
 #include "internal/PrepareAndInclude.h"
@@ -110,6 +121,8 @@
   #undef BLL_set_NodeDataType
 #endif
 
+#undef BLL_set_nrtra
+
 #undef BLL_set_CPP_ConstructDestruct
 #undef BLL_set_CPP_Node_ConstructDestruct
 #undef BLL_set_CPP_nrsic
@@ -117,6 +130,7 @@
 #ifdef BLL_set_BufferUpdateInfo
   #undef BLL_set_BufferUpdateInfo
 #endif
+#undef BLL_set_Clear
 #undef BLL_set_IsNodeRecycled
 #undef BLL_set_NodeSizeType
 #undef BLL_set_type_node

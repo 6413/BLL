@@ -65,11 +65,11 @@ BLL_StructEnd(_P(Node_t))
   #define bcontainer_set_NodeData _P(Node_t)
 #endif
 #if defined(BLL_set_BufferUpdateInfo)
-  #error make bcontainer support this
-  #define bcontainer_set_PossibleUpdate \
+  #define bcontainer_set_CapacityUpdate \
     _P(t) *bll = OFFSETLESS(This, _P(t), NodeList); \
-    _P(_BufferUpdateInfo)(bll, This->Possible, Possible);
+    _P(_BufferUpdateInfo)(bll, old_capacity, new_capacity);
 #endif
+#define bcontainer_set_Clear BLL_set_Clear
 #define bcontainer_set_Recycle BLL_set_Recycle
 #if BLL_set_IsNodeRecycled
   #error make bcontainer support this
@@ -538,7 +538,9 @@ _BLL_fdec(_P(NodeReference_t), NewNode
   #endif
 #endif
 
-#include "nrtra.h"
+#if BLL_set_nrtra
+  #include "nrtra.h"
+#endif
 
 _BLL_fdec(void, _DestructAllNodes
 ){
@@ -607,12 +609,14 @@ _BLL_fdec(void, Close
   public:
 #endif
 
-_BLL_fdec(void, Clear
-){
-  _BLL_fcall(_DestructAllNodes);
-  _P(_NodeList_Clear)(&_BLL_this->NodeList);
-  _BLL_fcall(_AfterInitNodes);
-}
+#if BLL_set_Clear
+  _BLL_fdec(void, Clear
+  ){
+    _BLL_fcall(_DestructAllNodes);
+    _P(_NodeList_Clear)(&_BLL_this->NodeList);
+    _BLL_fcall(_AfterInitNodes);
+  }
+#endif
 
 /* TODO make implement of this with !BLL_set_LinkSentinel */
 #if BLL_set_LinkSentinel
