@@ -285,7 +285,8 @@ _BLL_fdec(void, _SetNodeAsID,
 
 _BLL_fdec(_P(NodeReference_t), _NewNode_NoConstruct
 ){
-  return _P(_NodeList_NewNode)(&_BLL_this->NodeList);
+  BLL_set_type_node r = _P(_NodeList_NewNode)(&_BLL_this->NodeList);
+  return *(_P(NodeReference_t) *)&r;
 }
 _BLL_fdec(_P(NodeReference_t), NewNode
 ){
