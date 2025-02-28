@@ -90,3 +90,7 @@
 #ifdef BLL_set_CPP_CopyAtPointerChange
   #error will be implemented later
 #endif
+
+#ifdef BLL_set_BufferUpdateInfo
+  #error now its called BLL_set_CapacityUpdateInfo
+#endif

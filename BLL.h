@@ -127,8 +127,8 @@
 #undef BLL_set_CPP_Node_ConstructDestruct
 #undef BLL_set_CPP_nrsic
 
-#ifdef BLL_set_BufferUpdateInfo
-  #undef BLL_set_BufferUpdateInfo
+#ifdef BLL_set_CapacityUpdateInfo
+  #undef BLL_set_CapacityUpdateInfo
 #endif
 #undef BLL_set_Clear
 #undef BLL_set_IsNodeRecycled

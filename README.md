@@ -99,8 +99,8 @@ BLL is a linked list library with many build options.
     BLL_set_NodeDataType
     // If set, NodeData_t typedefs itself to it
 
-    BLL_set_BufferUpdateInfo
-    // Expanded at BLL buffer change.
+    BLL_set_CapacityUpdateInfo
+    // Expanded at capacity update.
 
     BLL_set_OnlyNextLink
     // Makes linked list one way. Removes PrevNodeLink
