@@ -53,16 +53,6 @@ BLL_StructEnd(_P(Node_t))
   #pragma pack(pop)
 #endif
 
-#if defined(BLL_set_CapacityUpdateInfo)
-  static __forceinline void _P(_CapacityUpdateInfo)(
-    _P(t) *bll,
-    BLL_set_type_node old_capacity,
-    BLL_set_type_node new_capacity
-  ){
-    BLL_set_CapacityUpdateInfo
-  }
-#endif
-
 #define bcontainer_set_Prefix _P(_NodeList)
 #define bcontainer_set_NodeType BLL_set_type_node
 #if defined(_BLL_HaveConstantNodeData)
@@ -70,8 +60,7 @@ BLL_StructEnd(_P(Node_t))
 #endif
 #if defined(BLL_set_CapacityUpdateInfo)
   #define bcontainer_set_CapacityUpdateInfo \
-    _P(t) *bll = OFFSETLESS(This, _P(t), NodeList); \
-    _P(_CapacityUpdateInfo)(bll, old_capacity, new_capacity);
+    BLL_set_CapacityUpdateInfo
 #endif
 #define bcontainer_set_Clear BLL_set_Clear
 #define bcontainer_set_Recycle BLL_set_Recycle
