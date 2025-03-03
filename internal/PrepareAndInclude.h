@@ -6,14 +6,6 @@
 
 #define _P(p0) CONCAT3(BLL_set_prefix, _, p0)
 
-#if BLL_set_StructFormat == 0
-  #define BLL_StructBegin(n) typedef struct{
-  #define BLL_StructEnd(n) }n;
-#elif BLL_set_StructFormat == 1
-  #define BLL_StructBegin(n) struct n{
-  #define BLL_StructEnd(n) };
-#endif
-
 /* for NodeReference to use */
 #if BLL_set_Language == 1
   struct _P(t);
@@ -53,9 +45,6 @@
 
   #undef _BLL_fdecnds
 #endif
-
-#undef BLL_StructBegin
-#undef BLL_StructEnd
 
 #undef _P
 

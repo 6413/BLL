@@ -94,3 +94,7 @@
 #ifdef BLL_set_BufferUpdateInfo
   #error now its called BLL_set_CapacityUpdateInfo
 #endif
+
+#ifdef BLL_set_StructFormat
+  #error no longer
+#endif

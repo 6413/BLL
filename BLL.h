@@ -22,15 +22,6 @@
 #ifndef BLL_set_prefix
   #error ifndef BLL_set_prefix
 #endif
-#ifndef BLL_set_StructFormat
-  #if BLL_set_Language == 0
-    #define BLL_set_StructFormat 0
-  #elif BLL_set_Language == 1
-    #define BLL_set_StructFormat 1
-  #else
-    #error ?
-  #endif
-#endif
 #ifndef BLL_set_declare_NodeReference
   #define BLL_set_declare_NodeReference 1
 #endif
@@ -150,7 +141,6 @@
 #undef BLL_set_IntegerNR
 #undef BLL_set_declare_rest
 #undef BLL_set_declare_NodeReference
-#undef BLL_set_StructFormat
 #undef BLL_set_Language
 #undef BLL_set_AreWeInsideStruct
 #undef BLL_set_prefix

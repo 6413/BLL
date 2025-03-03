@@ -3,9 +3,9 @@
 #endif
 #if defined(_BLL_HaveConstantNodeData)
   #if defined(BLL_set_NodeData)
-    BLL_StructBegin(_P(NodeData_t))
+    typedef struct{
       BLL_set_NodeData
-    BLL_StructEnd(_P(NodeData_t))
+    }_P(NodeData_t);
   #elif defined(BLL_set_NodeDataType)
     typedef BLL_set_NodeDataType _P(NodeData_t);
   #else
@@ -14,7 +14,7 @@
 #else
   typedef void _P(NodeData_t);
 #endif
-BLL_StructBegin(_P(Node_t))
+typedef struct{
   #if BLL_set_Link == 1
     #if BLL_set_PreferNextFirst == 1
       _P(NodeReference_t) NextNodeReference;
@@ -48,10 +48,15 @@ BLL_StructBegin(_P(Node_t))
       };
     #endif
   #endif
-BLL_StructEnd(_P(Node_t))
+}_P(Node_t);
 #if BLL_set_PadNode == 0
   #pragma pack(pop)
 #endif
+
+typedef struct _P(t) _P(t);
+
+#define BLL_CapacityUpdateInfo_define 0
+#include "_CapacityUpdateInfo.h"
 
 #define bcontainer_set_Prefix _P(_NodeList)
 #define bcontainer_set_NodeType BLL_set_type_node
@@ -60,7 +65,7 @@ BLL_StructEnd(_P(Node_t))
 #endif
 #if defined(BLL_set_CapacityUpdateInfo)
   #define bcontainer_set_CapacityUpdateInfo \
-    BLL_set_CapacityUpdateInfo
+    _P(_CapacityUpdateInfo)(This, old_capacity, new_capacity);
 #endif
 #define bcontainer_set_Clear BLL_set_Clear
 #define bcontainer_set_Recycle BLL_set_Recycle
@@ -85,7 +90,7 @@ BLL_StructEnd(_P(Node_t))
   #include <BME/BME.h>
 #endif
 
-BLL_StructBegin(_P(t))
+struct _P(t){
   _P(_NodeList_t) NodeList;
 
   #if BLL_set_LinkSentinel
@@ -101,7 +106,7 @@ BLL_StructBegin(_P(t))
   #endif
 
 #if BLL_set_Language == 0
-  BLL_StructEnd(_P(t))
+  };
 #else
   using nd_t = _P(NodeData_t);
   using nr_t = _P(NodeReference_t);
@@ -719,8 +724,11 @@ _BLL_fdec(void, Close
   }
 #endif
 
+#define BLL_CapacityUpdateInfo_define 1
+#include "_CapacityUpdateInfo.h"
+
 #if BLL_set_Language == 1
-  BLL_StructEnd(_P(t))
+  };
 
   #if BLL_set_Link == 1
     static _P(NodeReference_t) _P(_NodeReference_Next)(_P(NodeReference_t) *node_id, _P(t) *list){

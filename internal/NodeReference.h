@@ -1,6 +1,6 @@
 #if BLL_set_IntegerNR == 0
+  typedef struct _P(NodeReference_t) _P(NodeReference_t);
   #if BLL_set_Language == 1
-    struct _P(NodeReference_t);
     #if BLL_set_AreWeInsideStruct == 0
       static _P(NodeReference_t) _P(_NodeReference_Next)(_P(NodeReference_t) *, _P(t) *);
       static _P(NodeReference_t) _P(_NodeReference_Prev)(_P(NodeReference_t) *, _P(t) *);
@@ -11,7 +11,7 @@
   #endif
 
   #pragma pack(push, 1)
-  BLL_StructBegin(_P(NodeReference_t))
+  struct _P(NodeReference_t){
     BLL_set_type_node NRI;
 
     #if BLL_set_Language == 1
@@ -58,7 +58,7 @@
     #ifdef BLL_set_NodeReference_Overload_Declare
       BLL_set_NodeReference_Overload_Declare
     #endif
-  BLL_StructEnd(_P(NodeReference_t))
+  };
   #pragma pack(pop)
 
   __cta(sizeof(_P(NodeReference_t)) == sizeof(BLL_set_type_node));
