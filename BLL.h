@@ -77,6 +77,16 @@
 #ifndef BLL_set_Clear
   #define BLL_set_Clear 0
 #endif
+#ifndef BLL_set_Usage
+  #define BLL_set_Usage 0
+#endif
+#ifndef BLL_set_Allow_Usage_In_CapacityUpdateInfo
+  #if defined(BLL_set_CapacityUpdateInfo) && BLL_set_Usage
+    #define BLL_set_Allow_Usage_In_CapacityUpdateInfo 1
+  #else
+    #define BLL_set_Allow_Usage_In_CapacityUpdateInfo 0
+  #endif
+#endif
 
 #ifndef BLL_set_CPP_nrsic
   #define BLL_set_CPP_nrsic 0
@@ -121,6 +131,8 @@
 #ifdef BLL_set_CapacityUpdateInfo
   #undef BLL_set_CapacityUpdateInfo
 #endif
+#undef BLL_set_Allow_Usage_In_CapacityUpdateInfo
+#undef BLL_set_Usage
 #undef BLL_set_Clear
 #undef BLL_set_IsNodeRecycled
 #undef BLL_set_NodeSizeType

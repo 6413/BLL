@@ -200,14 +200,21 @@ _BLL_fdec(void, SetNodeData,
   _BLL_fcall(ReleaseNode, node_id, node);
 }
 
-_BLL_fdec(BLL_set_type_node, Usage
-){
-  return _P(_NodeList_Usage)(&_BLL_this->NodeList)
-    #if BLL_set_LinkSentinel
-      - 2
-    #endif
-  ;
-}
+#if BLL_set_Usage
+  _BLL_fdec(BLL_set_type_node, Usage
+  ){
+    return _P(_NodeList_Usage)(&_BLL_this->NodeList)
+      #if BLL_set_LinkSentinel
+        #if BLL_set_Allow_Usage_In_CapacityUpdateInfo
+          - !_P(inric)(_BLL_this->src)
+          - !_P(inric)(_BLL_this->dst)
+        #else
+          - 2
+        #endif
+      #endif
+    ;
+  }
+#endif
 
 _BLL_fdec(void, _Node_Construct,
   _P(NodeReference_t) nr
@@ -556,6 +563,11 @@ _BLL_fdec(void, _DestructAllNodes
 _BLL_fdec(void, _AfterInitNodes
 ){
   #if BLL_set_LinkSentinel
+    #if BLL_set_Allow_Usage_In_CapacityUpdateInfo
+      _BLL_this->src = _P(gnric)();
+      _BLL_this->dst = _P(gnric)();
+    #endif
+
     _BLL_this->src = _BLL_fcall(_NewNode_NoConstruct);
     _BLL_this->dst = _BLL_fcall(_NewNode_NoConstruct);
 
