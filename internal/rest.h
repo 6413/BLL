@@ -3,9 +3,10 @@
 #endif
 #if defined(_BLL_HaveConstantNodeData)
   #if defined(BLL_set_NodeData)
-    typedef struct{
+    BLL_DeclareStruct(_P(NodeData_t));
+    struct _P(NodeData_t){
       BLL_set_NodeData
-    }_P(NodeData_t);
+    };
   #elif defined(BLL_set_NodeDataType)
     typedef BLL_set_NodeDataType _P(NodeData_t);
   #else
@@ -53,15 +54,21 @@ typedef struct{
   #pragma pack(pop)
 #endif
 
-typedef struct _P(t) _P(t);
+BLL_DeclareStruct(_P(t));
 
 #define BLL_CapacityUpdateInfo_define 0
 #include "_CapacityUpdateInfo.h"
+
+#define BLL_HandleAllocate_define 0
+#include "_HandleAllocate.h"
 
 #define bcontainer_set_Prefix _P(_NodeList)
 #define bcontainer_set_NodeType BLL_set_type_node
 #if defined(_BLL_HaveConstantNodeData)
   #define bcontainer_set_NodeData _P(Node_t)
+#endif
+#if BLL_set_CPP_CopyAtPointerChange
+  #define bcontainer_set_HandleAllocate _P(_HandleAllocate)
 #endif
 #if defined(BLL_set_CapacityUpdateInfo)
   #define bcontainer_set_CapacityUpdateInfo \
@@ -552,9 +559,10 @@ _BLL_fdec(void, _DestructAllNodes
 ){
   #if BLL_set_CPP_Node_ConstructDestruct
     nrtra_t nrtra;
-    nrtra.Open(_BLL_this);
-    while(nrtra.Loop(_BLL_this) == true){
-      _BLL_fcall(_Node_Destruct, nrtra.nr);
+    _P(NodeReference_t) node_id;
+    nrtra.Open(_BLL_this, &node_id);
+    while(nrtra.Loop(_BLL_this, &node_id) == true){
+      _BLL_fcall(_Node_Destruct, node_id);
     }
     nrtra.Close(_BLL_this);
   #endif
@@ -721,9 +729,11 @@ _BLL_fdec(void, Close
 #endif
 
 #if !BLL_set_Recycle && BLL_set_IntegerNR && !BLL_set_LinkSentinel
-  #if BLL_set_Language == 1
-    _P(NodeData_t) *begin() { return &operator[](0); }
-    _P(NodeData_t) *end() { return &operator[](Usage()); }
+  #if BLL_set_Usage
+    #if BLL_set_Language == 1
+      _P(NodeData_t) *begin() { return &operator[](0); }
+      _P(NodeData_t) *end() { return &operator[](Usage()); }
+    #endif
   #endif
 
   _BLL_fdec(void, inc
@@ -738,6 +748,9 @@ _BLL_fdec(void, Close
 
 #define BLL_CapacityUpdateInfo_define 1
 #include "_CapacityUpdateInfo.h"
+
+#define BLL_HandleAllocate_define 1
+#include "_HandleAllocate.h"
 
 #if BLL_set_Language == 1
   };

@@ -1,5 +1,5 @@
 #if BLL_set_IntegerNR == 0
-  typedef struct _P(NodeReference_t) _P(NodeReference_t);
+  BLL_DeclareStruct(_P(NodeReference_t));
   #if BLL_set_Language == 1
     #if BLL_set_AreWeInsideStruct == 0
       static _P(NodeReference_t) _P(_NodeReference_Next)(_P(NodeReference_t) *, _P(t) *);

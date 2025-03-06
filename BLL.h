@@ -97,9 +97,14 @@
 #ifndef BLL_set_CPP_ConstructDestruct
   #define BLL_set_CPP_ConstructDestruct 0
 #endif
+#ifndef BLL_set_CPP_CopyAtPointerChange
+  #define BLL_set_CPP_CopyAtPointerChange 0
+#endif
 
 #ifndef BLL_set_nrtra
   #if BLL_set_CPP_Node_ConstructDestruct
+    #define BLL_set_nrtra 1
+  #elif BLL_set_CPP_CopyAtPointerChange
     #define BLL_set_nrtra 1
   #else
     #define BLL_set_nrtra 0
@@ -124,6 +129,7 @@
 
 #undef BLL_set_nrtra
 
+#undef BLL_set_CPP_CopyAtPointerChange
 #undef BLL_set_CPP_ConstructDestruct
 #undef BLL_set_CPP_Node_ConstructDestruct
 #undef BLL_set_CPP_nrsic
