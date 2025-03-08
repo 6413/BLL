@@ -746,12 +746,6 @@ _BLL_fdec(void, Close
   }
 #endif
 
-#define BLL_CapacityUpdateInfo_define 1
-#include "_CapacityUpdateInfo.h"
-
-#define BLL_HandleAllocate_define 1
-#include "_HandleAllocate.h"
-
 #if BLL_set_Language == 1
   };
 
@@ -772,3 +766,9 @@ _BLL_fdec(void, Close
     #endif
   #endif
 #endif
+
+#define BLL_CapacityUpdateInfo_define 1
+#include "_CapacityUpdateInfo.h"
+
+#define BLL_HandleAllocate_define 1
+#include "_HandleAllocate.h"
