@@ -1,8 +1,9 @@
 #if defined(BLL_set_CapacityUpdateInfo)
-  #if !BLL_CapacityUpdateInfo_define && BLL_set_AreWeInsideStruct
-    static __forceinline
-  #endif
   #if BLL_CapacityUpdateInfo_define + BLL_set_AreWeInsideStruct <= 1
+    static
+    #if BLL_set_AreWeInsideStruct
+      __forceinline
+    #endif
     void _P(_CapacityUpdateInfo)(
       void *_NodeList,
       BLL_set_type_node old_capacity,

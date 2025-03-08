@@ -1,8 +1,9 @@
 #if BLL_set_CPP_CopyAtPointerChange
-  #if !BLL_HandleAllocate_define && BLL_set_AreWeInsideStruct
-    static __forceinline
-  #endif
   #if BLL_HandleAllocate_define + BLL_set_AreWeInsideStruct <= 1
+    static
+    #if BLL_set_AreWeInsideStruct
+      __forceinline
+    #endif
     void *_P(_HandleAllocate)(
       void *_NodeList,
       BLL_set_type_node old_capacity
