@@ -37,7 +37,7 @@
   ){
     #if BLL_set_Recycle == 0
     #elif BLL_set_IsNodeRecycled == 0
-      _BLL_nrtra_this->_RecycledArray = (uint8_t *)_P(_NodeList__mmap)(
+      _BLL_nrtra_this->_RecycledArray = (uint8_t *)_P(_NodeList__mmalloc)(
         _BLL_nrtra_size
       );
       __builtin_memset(
