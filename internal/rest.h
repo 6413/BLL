@@ -134,10 +134,13 @@ _BLL_fdec(BLL_set_NodeSizeType, GetNodeSize
 }
 
 /* is node reference invalid */
-_BLL_fdec(bool, _plsimplement_inri,
-  _P(NodeReference_t) nr
+_BLL_fdec(bool, inri,
+  _P(NodeReference_t) node_id
 ){
-  return false;
+  return _P(_NodeList_IsElementInvalid)(
+    &_BLL_this->NodeList,
+    *_P(gnrint)(&node_id)
+  );
 }
 
 _BLL_fdec(_P(Node_t) *, GetNodeUnsafe,
