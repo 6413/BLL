@@ -308,7 +308,7 @@ _BLL_fdec(void, _SetNodeAsID,
     _BLL_fdec(bool, IsNodeReferenceRecycled,
       _P(NodeReference_t) node_id
     ){
-      return _P(IsElementRecycled)(
+      return _P(_NodeList_IsElementRecycled)(
         &_BLL_this->NodeList,
         *_P(gnrint)(&node_id)
       );
