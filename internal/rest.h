@@ -232,6 +232,20 @@ _BLL_fdec(void, SetNodeData,
   }
 #endif
 
+_BLL_fdec(BLL_set_type_node, SizeNormalized
+){
+  return _P(_NodeList_SizeNormalized)(&_BLL_this->NodeList)
+    #if BLL_set_LinkSentinel
+      #if BLL_set_Allow_Usage_In_CapacityUpdateInfo
+        - !_P(inric)(_BLL_this->src)
+        - !_P(inric)(_BLL_this->dst)
+      #else
+        - 2
+      #endif
+    #endif
+  ;
+}
+
 _BLL_fdec(void, _Node_Construct,
   _P(NodeReference_t) nr
 ){
