@@ -77,7 +77,13 @@ BLL_DeclareStruct(_P(t));
 #define bcontainer_set_Clear BLL_set_Clear
 #define bcontainer_set_Recycle BLL_set_Recycle
 #if BLL_set_IsNodeRecycled
-  #error make bcontainer support this
+  #define bcontainer_set_IsElementRecycled 1
+  #if BLL_set_Link && !BLL_set_OnlyNextLink
+    #define bcontainer_set_IsElementRecycled \
+      bcontainer_set_IsElementRecycled_Strategy_InvalidateDataAsID
+  #else
+    #define bcontainer_set_IsElementRecycled 1
+  #endif
 #endif
 #define bcontainer_set_MultiThread BLL_set_MultiThread
 #define bcontainer_set_CountLockFail BLL_set_CountLockFail
@@ -284,6 +290,17 @@ _BLL_fdec(void, _SetNodeAsID,
 }
 
 #if BLL_set_Recycle
+  #if BLL_set_IsNodeRecycled
+    _BLL_fdec(bool, IsNodeReferenceRecycled,
+      _P(NodeReference_t) node_id
+    ){
+      return _P(IsElementRecycled)(
+        &_BLL_this->NodeList,
+        *_P(gnrint)(&node_id)
+      );
+    }
+  #endif
+
   _BLL_fdec(void, Recycle_NoDestruct,
     _P(NodeReference_t) nr
   ){
