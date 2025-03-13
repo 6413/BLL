@@ -585,6 +585,9 @@ _BLL_fdec(_P(NodeReference_t), NewNode
   #endif
 #endif
 
+#if BLL_set_Recycle
+  #include "RecycleTraverse.h"
+#endif
 #if BLL_set_nrtra
   #include "nrtra.h"
 #endif
